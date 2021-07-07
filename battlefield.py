@@ -25,6 +25,7 @@ class Battlefield:
 
 	def Shoot(self, x, y):
 		if self.radar[x][y] in '.x': raise AlreadyShot
+		if x < 0 or y < 0 or x > 9 or y > 9: raise OutOfRange
 		self.Reveal(x, y)
 		if self.radar[x][y] == 'x':
 			self.ladje -= 1
@@ -47,6 +48,14 @@ class Battlefield:
 
 	def Poteka(self):
 		return self.ladje > 0
+
+	def RandomAI(self):
+		prazna = []
+		for x in range(10):
+			for y in range(10):
+				if self.radar[x][y] == ' ': prazna.append((x, y))
+		x, y = random.choice(prazna)
+		self.Shoot(x, y)
 			
 
 class Ship:
