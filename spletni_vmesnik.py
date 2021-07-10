@@ -5,11 +5,11 @@ uporabnik = None
 
 @bottle.get("/")
 def zacetna_stran():
-	return bottle.template("home.tpl")
+	return bottle.template("home.html")
 
 @bottle.get("/pravila")
 def pravila_igre():
-	return bottle.template("pravila.tpl")
+	return bottle.template("pravila.html")
 	
 @bottle.get("/igra")
 def igra():
@@ -17,7 +17,7 @@ def igra():
 	game.RandomSetup()
 	while game.Poteka():
 		game.Shoot(*game.Hunt())
-	return bottle.template("igra.tpl", igra=game)
+	return bottle.template("igra.html", igra=game)
 
 @bottle.get("/img/<picture>")
 def slike(picture):

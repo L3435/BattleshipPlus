@@ -1,4 +1,4 @@
-% rebase("menu.tpl")
+% rebase("menu.html")
 
 <style>
 	table {
@@ -43,25 +43,21 @@
 				% if igra.radar[x][y] == ' ':
 				<td class="prazna" style="padding: 0 0 0 0;">
 					<a href="/igra/?{{x}}&{{y}}" style="display:block;width:100%;height:100%;">
-						&nbsp;
 					</a>
 				</td>
 				% elif igra.radar[x][y] == '.':
 				<td class="zgresena" style="padding: 0 0 0 0;">
 					<div style="display:block;width:100%;height:100%;">
-						&nbsp;
 					</div>
 				</td>
 				% elif igra.radar[x][y] == 'x':
 				<td class="zadeta" style="padding: 0 0 0 0;">
 					<div style="display:block;width:100%;height:100%;">
-						&nbsp;
 					</div>
 				</td>
 				% elif igra.radar[x][y] == 'P':
 				<td class="potopljena" style="padding: 0 0 0 0;">
 					<div style="display:block;width:100%;height:100%;">
-						&nbsp;
 					</div>
 				</td>
 				% end
