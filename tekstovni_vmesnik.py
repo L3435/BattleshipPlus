@@ -50,9 +50,13 @@ def AI_Testing():
 	"""Vmesnik za opazovanje AI"""
 	P = battlefield.AI()
 	P.RandomSetup()
-	while P.Poteka():
-		P.Shoot(*P.Hunt())
+	for i in range(100):
+		if i < 20:
+			P.Shoot(*P.MonteCarlo())
+		else: P.Shoot(*P.Optimal())
 		print(P)
 		print("===================")
+		if not P.Poteka():
+			break
 
 AI_Testing()

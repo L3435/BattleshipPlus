@@ -15,8 +15,14 @@ def pravila_igre():
 def igra():
 	game = battlefield.AI()
 	game.RandomSetup()
-	while game.Poteka():
-		game.Shoot(*game.Hunt())
+	for  i in range(100):
+		if not game.Poteka():
+			break
+		if i < 20 or len(game.mornarica) > 3:
+			game.Shoot(*game.MonteCarlo())
+		else:
+			game.Shoot(*game.Optimal())
+		print("Strel")
 	return bottle.template("igra.html", igra=game)
 
 @bottle.get("/img/<picture>")

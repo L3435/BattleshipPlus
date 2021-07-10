@@ -28,6 +28,11 @@ class Polje:
 		for i in range(ship.length):
 			self.field[x + 5 + r * i][y + 5 + i - r * i] = ship
 
+	def RemoveShip(self, ship, x, y, r):
+		"""S polja odstrani ladjo"""
+		for i in range(ship.length):
+			self.field[x + 5 + r * i][y + 5 + i - r * i] = ' '
+
 	def RandomSetup(self):
 		"""Na polje naključno postavi ladje"""
 		while True:
@@ -124,12 +129,10 @@ class AI(Igra):
 			return self.Hunt()
 		verjetnosti = [ [0] * 10 for _ in range(10)]
 		t = 0
-		while t < 100:
+		while t < 200:
 			simulacija = Polje()
 			simulacija.mornarica = self.mornarica
 			simulacija.RandomSetup()
-			if any(simulacija.field[x + 5][y + 5] == ' ' and self.radar[x][y] == 'x' for x in range(10) for y in range(10)):
-				continue
 			if any(simulacija.field[x + 5][y + 5] != ' ' and self.radar[x][y] == '.' for x in range(10) for y in range(10)):
 				continue
 			for x in range(10):
@@ -139,6 +142,59 @@ class AI(Igra):
 			t += 1
 		list = sorted([(x, y) for x in range(10) for y in range(10)], key=lambda p: -verjetnosti[p[0]][p[1]])
 		for p in list:
+			if self.radar[p[0]][p[1]] == ' ': return p
+
+	def RekurzivnoPostavljanje(self, indeks, simulacija, tabela):
+		if indeks == len(simulacija.mornarica):
+			if any(simulacija.field[x + 5][y + 5] == ' ' and self.radar[x][y] == 'x' for x in range(10) for y in range(10)):
+				return
+			for x in range(10):
+				for y in range(10):
+					if simulacija.field[x + 5][y + 5] != ' ' and simulacija.field[x + 5][y + 5] != '.':
+						tabela[x][y] += 1
+			return
+		for x in range(10):
+			for y in range(10):
+				for r in range(2):
+					try:
+						simulacija.SetShip(list(simulacija.mornarica.values())[indeks], x, y, r)
+						self.RekurzivnoPostavljanje(indeks + 1, simulacija, tabela)
+						simulacija.RemoveShip(list(simulacija.mornarica.values())[indeks], x, y, r)
+					except CellTaken:
+						continue
+
+	def Optimal(self):
+		"""Optimalna, a počasna strategija"""
+		print("Optimal")
+		verjetnosti = [ [0] * 10 for _ in range(10)]
+		simulacija = Polje()
+		for x in range(10):
+			for y in range(10):
+				if self.radar[x][y] == '.':
+					simulacija.field[x + 5][y + 5] = '.'
+		simulacija.mornarica = self.mornarica.copy()
+		if any(self.radar[x][y] == 'x' for x in range(10) for y in range(10)):
+			for i in range(10):
+				for j in range(10):
+					if self.radar[i][j] == 'x':
+						x, y = i, j
+						break
+			print(x,y)
+			for ship in list(self.mornarica.values()):
+				simulacija.mornarica.pop(ship.id)
+				for i in range(ship.length):
+					for r in range(2):
+						try:
+							simulacija.SetShip(ship, x - r * i, y - i + r * i, r)
+							self.RekurzivnoPostavljanje(0, simulacija, verjetnosti)
+							simulacija.RemoveShip(ship, x - r * i, y - i + r * i, r)
+						except CellTaken:
+							continue
+				simulacija.mornarica[ship.id] = ship
+		else:
+			self.RekurzivnoPostavljanje(0, simulacija, verjetnosti)
+		sez = sorted([(x, y) for x in range(10) for y in range(10)], key=lambda p: -verjetnosti[p[0]][p[1]])
+		for p in sez:
 			if self.radar[p[0]][p[1]] == ' ': return p
 
 class Ship:
