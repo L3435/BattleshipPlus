@@ -18,10 +18,10 @@ def igra():
 	for  i in range(100):
 		if not game.Poteka():
 			break
-		if i < 20 or len(game.mornarica) > 3:
-			game.Shoot(*game.MonteCarlo())
+		if not game.faza:
+			game.Shoot(*game.MonteCarlo(5))
 		else:
-			game.Shoot(*game.Optimal())
+			game.Shoot(*game.Optimal(5))
 		print("Strel")
 	return bottle.template("igra.html", igra=game)
 

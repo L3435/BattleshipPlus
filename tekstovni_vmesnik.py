@@ -50,10 +50,11 @@ def AI_Testing():
 	"""Vmesnik za opazovanje AI"""
 	P = battlefield.AI()
 	P.RandomSetup()
-	for i in range(100):
-		if i < 20:
-			P.Shoot(*P.MonteCarlo())
-		else: P.Shoot(*P.Optimal())
+	for _ in range(100):
+		if any(P.radar[x][y] == 'x' for x in range(10) for y in range(10)):
+			P.Shoot(*P.Hunt())
+		else:
+			P.Shoot(*P.SemiOptimal())
 		print(P)
 		print("===================")
 		if not P.Poteka():

@@ -1,5 +1,6 @@
 from errors import *
 import random
+import time
 
 class Polje:
 	"""Razred z metodami za pripravo igralnega polja"""
@@ -77,6 +78,10 @@ class Igra(Polje):
 
 class AI(Igra):
 
+	def __init__(self):
+		super().__init__()
+		self.faza = False
+
 	def RandomAI(self):
 		"""Metoda, ki naključno strelja polja"""
 		prazna = []
@@ -124,12 +129,15 @@ class AI(Igra):
 					return (x + i, y + j)
 		return self.SemiRandomAI()
 
-	def MonteCarlo(self):
+	def MonteCarlo(self, t):
+		start = time.time()
 		if any(self.radar[x][y] == 'x' for x in range(10) for y in range(10)):
 			return self.Hunt()
 		verjetnosti = [ [0] * 10 for _ in range(10)]
-		t = 0
-		while t < 200:
+		n = 0
+		while n < 1000:
+			if time.time() - start > t:
+				break
 			simulacija = Polje()
 			simulacija.mornarica = self.mornarica
 			simulacija.RandomSetup()
@@ -139,12 +147,16 @@ class AI(Igra):
 				for y in range(10):
 					if simulacija.field[x + 5][y + 5] != ' ':
 						verjetnosti[x][y] += 1
-			t += 1
+			n += 1
+		if n < 250:
+			self.faza = True
+			return self.SemiOptimal()
 		list = sorted([(x, y) for x in range(10) for y in range(10)], key=lambda p: -verjetnosti[p[0]][p[1]])
 		for p in list:
 			if self.radar[p[0]][p[1]] == ' ': return p
 
-	def RekurzivnoPostavljanje(self, indeks, simulacija, tabela):
+	def RekurzivnoPostavljanje(self, indeks, simulacija, tabela, start, t):
+		if time.time() - start > t: return
 		if indeks == len(simulacija.mornarica):
 			if any(simulacija.field[x + 5][y + 5] == ' ' and self.radar[x][y] == 'x' for x in range(10) for y in range(10)):
 				return
@@ -158,12 +170,40 @@ class AI(Igra):
 				for r in range(2):
 					try:
 						simulacija.SetShip(list(simulacija.mornarica.values())[indeks], x, y, r)
-						self.RekurzivnoPostavljanje(indeks + 1, simulacija, tabela)
+						self.RekurzivnoPostavljanje(indeks + 1, simulacija, tabela, start, t)
 						simulacija.RemoveShip(list(simulacija.mornarica.values())[indeks], x, y, r)
 					except CellTaken:
 						continue
 
-	def Optimal(self):
+	def SemiOptimal(self):
+		"""Izračuna verjetnosti v primeru, ko imamo eno ladjo"""
+		print("RIP")
+		if any(self.radar[x][y] == 'x' for x in range(10) for y in range(10)):
+			return self.Hunt()
+		verjetnosti = [ [0] * 10 for _ in range(10)]
+		simulacija = Polje()
+		for x in range(10):
+			for y in range(10):
+				if self.radar[x][y] == '.':
+					simulacija.field[x + 5][y + 5] = '.'
+		simulacija.mornarica = self.mornarica.copy()
+		for ship in list(self.mornarica.values()):
+			for x in range(10):
+				for y in range(10):
+					for r in range(2):
+						try:
+							simulacija.SetShip(ship, x, y, r)
+							for i in range(ship.length):
+								verjetnosti[x + r * i][y + i - r * i] += 1
+							simulacija.RemoveShip(ship, x, y, r)
+						except CellTaken:
+							continue
+		sez = sorted([(x, y) for x in range(10) for y in range(10)], key=lambda p: -verjetnosti[p[0]][p[1]])
+		for p in sez:
+			if self.radar[p[0]][p[1]] == ' ': return p
+
+	def Optimal(self, t):
+		start = time.time()
 		"""Optimalna, a počasna strategija"""
 		print("Optimal")
 		verjetnosti = [ [0] * 10 for _ in range(10)]
@@ -186,13 +226,15 @@ class AI(Igra):
 					for r in range(2):
 						try:
 							simulacija.SetShip(ship, x - r * i, y - i + r * i, r)
-							self.RekurzivnoPostavljanje(0, simulacija, verjetnosti)
+							self.RekurzivnoPostavljanje(0, simulacija, verjetnosti, start, t)
 							simulacija.RemoveShip(ship, x - r * i, y - i + r * i, r)
 						except CellTaken:
 							continue
 				simulacija.mornarica[ship.id] = ship
 		else:
-			self.RekurzivnoPostavljanje(0, simulacija, verjetnosti)
+			self.RekurzivnoPostavljanje(0, simulacija, verjetnosti, start, t)
+		if time.time() - start > t:
+			return self.SemiOptimal()
 		sez = sorted([(x, y) for x in range(10) for y in range(10)], key=lambda p: -verjetnosti[p[0]][p[1]])
 		for p in sez:
 			if self.radar[p[0]][p[1]] == ' ': return p
