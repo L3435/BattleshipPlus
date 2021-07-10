@@ -26,7 +26,7 @@
           Domov
         </a>
   
-        <a class="navbar-item" href="/pravila/">
+        <a class="navbar-item" href="/pravila">
           Pravila igre
         </a>
   
