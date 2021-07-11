@@ -1,6 +1,7 @@
 import bottle
 import battlefield
 import user
+import igra
 
 USERNAME_COOKIE = "username"
 SECRET = "2 + 2 is 4 - 1 is 3 quickmaths"
@@ -43,7 +44,6 @@ def prijava_post():
 			"prijava.html", napaka=e.args[0], uname=username
 		)
 
-
 @bottle.get("/registracija")
 def registracija():
 	return bottle.template("registracija.html", user=trenutni_uporabnik())
@@ -81,19 +81,22 @@ def profil():
 		bottle.redirect("/")
 	return bottle.template("profil.html", user=trenutni_uporabnik())
 	
-@bottle.get("/igra")
-def igra():
-	game = battlefield.AI()
-	game.RandomSetup()
-	for  i in range(100):
-		if not game.Poteka():
-			break
-		if not game.faza:
-			game.Shoot(*game.MonteCarlo(5))
-		else:
-			game.Shoot(*game.Optimal(5))
-		print("Strel")
-	return bottle.template("igra.html", igra=game, user=trenutni_uporabnik())
+@bottle.get("/igra/<id:int>")
+def trenutna(id):
+	if bottle.request.query.x:
+		x = int(bottle.request.query.x)
+		y = int(bottle.request.query.y)
+		user = trenutni_uporabnik()
+		user.igre[id].Poteza(x, y, 0)
+		user.v_datoteko()
+	return bottle.template("igra.html", id=id, igra=trenutni_uporabnik().igre[id].igralec, user=trenutni_uporabnik())
+
+@bottle.post("/igra")
+def nova_igra():
+	user = trenutni_uporabnik()
+	id = user.nova_igra()
+	user.v_datoteko()
+	bottle.redirect(f"/igra/{id}")
 
 @bottle.get("/img/<picture>")
 def slike(picture):

@@ -10,11 +10,11 @@ class Polje:
 			for y in range(5, 15):
 				self.field[x][y] = ' '
 		self.mornarica = {
-			1 : Ship(5, 1, self),
-			2 : Ship(4, 2, self),
-			3 : Ship(3, 3, self),
-			4 : Ship(3, 4, self),
-			5 : Ship(2, 5, self),
+			"A" : Ship(5, "A"),
+			"B" : Ship(4, "B"),
+			"C" : Ship(3, "C"),
+			"D" : Ship(3, "D"),
+			"E" : Ship(2, "E"),
 		}
 		self.ladje = sum(ladja.length for ladja in self.mornarica.values())
 
@@ -27,7 +27,7 @@ class Polje:
 		if any(self.field[x + 5 + r * i][y + 5 + i - r * i] != ' ' for i in range(ship.length)):
 			raise CellTaken
 		for i in range(ship.length):
-			self.field[x + 5 + r * i][y + 5 + i - r * i] = ship
+			self.field[x + 5 + r * i][y + 5 + i - r * i] = ship.id
 
 	def RemoveShip(self, ship, x, y, r):
 		"""S polja odstrani ladjo"""
@@ -46,6 +46,11 @@ class Polje:
 				break
 			except CellTaken:
 				self.__init__()
+	
+	def OdstraniPotopljene(self):
+		for x in range(10):
+			for y in range(10):
+				pass
 
 
 class Igra(Polje):
@@ -70,11 +75,41 @@ class Igra(Polje):
 		self.Reveal(x, y)
 		if self.radar[x][y] == 'x':
 			self.ladje -= 1
-			self.field[x + 5][y + 5].zadeta()
+			ladja = self.mornarica[self.field[x + 5][y + 5]]
+			ladja.zadeta()
+			if ladja.potopljena:
+				for x in range(10):
+					for y in range(10):
+						if self.field[x + 5][y + 5] == ladja.id:
+							self.radar[x][y] = 'P'
 
 	def Poteka(self):
 		"""Če je igra že končana, vrne False, drugače True"""
 		return self.ladje > 0
+
+	def v_slovar(self):
+		return {
+			"polje" : [
+				[self.field[x + 5][y + 5] for y in range(10)] for x in range(10)
+			],
+			"radar" : [
+				[self.radar[x][y] for y in range(10)] for x in range(10)
+			],
+			"mornarica" : { id : self.mornarica[id].v_slovar() for id in self.mornarica }
+		}
+
+	@staticmethod
+	def iz_slovarja(slovar):
+		X = AI()
+		for x in range(10):
+			for y in range(10):
+				X.field[x + 5][y + 5] = slovar["polje"][x][y]
+		for x in range(10):
+			for y in range(10):
+				X.radar[x][y] = slovar["radar"][x][y]
+		X.mornarica = {id : Ship.iz_slovarja(slovar["mornarica"][id]) for id in slovar["mornarica"] }
+		return X
+		
 
 class AI(Igra):
 
@@ -177,7 +212,6 @@ class AI(Igra):
 
 	def SemiOptimal(self):
 		"""Izračuna verjetnosti v primeru, ko imamo eno ladjo"""
-		print("RIP")
 		if any(self.radar[x][y] == 'x' for x in range(10) for y in range(10)):
 			return self.Hunt()
 		verjetnosti = [ [0] * 10 for _ in range(10)]
@@ -205,7 +239,6 @@ class AI(Igra):
 	def Optimal(self, t):
 		start = time.time()
 		"""Optimalna, a počasna strategija"""
-		print("Optimal")
 		verjetnosti = [ [0] * 10 for _ in range(10)]
 		simulacija = Polje()
 		for x in range(10):
@@ -219,7 +252,6 @@ class AI(Igra):
 					if self.radar[i][j] == 'x':
 						x, y = i, j
 						break
-			print(x,y)
 			for ship in list(self.mornarica.values()):
 				simulacija.mornarica.pop(ship.id)
 				for i in range(ship.length):
@@ -241,10 +273,9 @@ class AI(Igra):
 
 class Ship:
 	"""Razred, ki vsebuje vse podatke o ladjah"""
-	def __init__(self, n, id, igra):
+	def __init__(self, n, id):
 		self.length = n
 		self.id = id
-		self.igra = igra
 		self.nezadeta = n
 		self.potopljena = False
 		
@@ -257,8 +288,18 @@ class Ship:
 		self.nezadeta -= 1
 		if not self.nezadeta:
 			self.potopljena = True
-			for x in range(10):
-				for y in range(10):
-					if self.igra.field[x + 5][y + 5] == self:
-						self.igra.radar[x][y] = 'P'
-			self.igra.mornarica.pop(self.id)
+
+	def v_slovar(self):
+		return {
+			"l" : self.length,
+			"id" : self.id,
+			"nezadeta" : self.nezadeta,
+			"potopljena" : self.potopljena,
+		}
+
+	@staticmethod
+	def iz_slovarja(slovar):
+		X = Ship(int(slovar["l"]), slovar["id"])
+		X.nezadeta = int(slovar["nezadeta"])
+		X.potopljena = slovar["potopljena"]
+		return X

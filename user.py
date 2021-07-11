@@ -1,11 +1,13 @@
 import hashlib
 import json
 import random
+import igra
 
 class User:
 	def __init__(self, name, pwd):
 		self.username = name
 		self.pwd = pwd
+		self.igre = dict({})
 
 	@staticmethod
 	def prijava(uporabnisko_ime, geslo_v_cistopisu):
@@ -40,6 +42,7 @@ class User:
 		return {
 			"username": self.username,
 			"pwd": self.pwd,
+			"igre": {id : self.igre[id].v_slovar() for id in self.igre}
 		}
 
 	def v_datoteko(self):
@@ -54,13 +57,16 @@ class User:
 
 	@staticmethod
 	def UserFile(username):
-		return f"{username}.json"
+		return f"user_{username}.json"
+		# Windows ne dovoli uporabe določenih imen za datoteke, kar obidemo s predpono "user_"
 
 	@staticmethod
 	def iz_slovarja(slovar):
 		username = slovar["username"]
 		pwd = slovar["pwd"]
-		return User(username, pwd)
+		uporabnik = User(username, pwd)
+		uporabnik.igre = {int(id) : igra.Enoigralski.iz_slovarja(slovar["igre"][id]) for id in slovar["igre"]}
+		return uporabnik
 
 	@staticmethod
 	def iz_datoteke(username):
@@ -70,3 +76,13 @@ class User:
 				return User.iz_slovarja(slovar)
 		except FileNotFoundError:
 			return None
+
+	def prost_id_igre(self):
+		return len(self.igre)
+
+	def nova_igra(self):
+		id = self.prost_id_igre()
+		self.igre[id] = igra.Enoigralski()
+		return id
+
+A = User.iz_datoteke("a")
