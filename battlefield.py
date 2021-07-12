@@ -2,20 +2,57 @@ from errors import *
 import random
 import time
 
-class Polje:
-	"""Razred z metodami za pripravo igralnega polja"""
-	def __init__(self):
-		self.field = [ ['x'] * 20 for _ in range(20)]
-		for x in range(5, 15):
-			for y in range(5, 15):
-				self.field[x][y] = ' '
-		self.mornarica = {
+class Ship:
+	"""Razred, ki vsebuje vse podatke o ladjah"""
+	def __init__(self, n, id):
+		self.length = n
+		self.id = id
+		self.nezadeta = n
+		self.potopljena = False
+		
+	def __str__(self):
+		"""Izpiše id ladje"""
+		return str(self.id)
+
+	def zadeta(self):
+		"""Zmanjša število polj in preveri, če je potopljena"""
+		self.nezadeta -= 1
+		if not self.nezadeta:
+			self.potopljena = True
+
+	def v_slovar(self):
+		return {
+			"l" : self.length,
+			"id" : self.id,
+			"nezadeta" : self.nezadeta,
+			"potopljena" : self.potopljena,
+		}
+
+	@staticmethod
+	def iz_slovarja(slovar):
+		X = Ship(int(slovar["l"]), slovar["id"])
+		X.nezadeta = int(slovar["nezadeta"])
+		X.potopljena = slovar["potopljena"]
+		return X
+
+KLASIKA = {
 			"A" : Ship(5, "A"),
 			"B" : Ship(4, "B"),
 			"C" : Ship(3, "C"),
 			"D" : Ship(3, "D"),
-			"E" : Ship(2, "E"),
+			"E" : Ship(2, "E")
 		}
+
+class Polje:
+	"""Razred z metodami za pripravo igralnega polja"""
+	def __init__(self, mornarica=KLASIKA):
+		self.field = [ ['x'] * 20 for _ in range(20)]
+		for x in range(5, 15):
+			for y in range(5, 15):
+				self.field[x][y] = ' '
+		self.mornarica = mornarica.copy()
+		for id in self.mornarica:
+			mornarica[id] = Ship(mornarica[id].length, mornarica[id].id)
 		self.ladje = sum(ladja.length for ladja in self.mornarica.values())
 
 	def __str__(self):
@@ -45,7 +82,7 @@ class Polje:
 								random.randint(0,1))
 				break
 			except CellTaken:
-				self.__init__()
+				self.__init__(self.mornarica)
 	
 	def OdstraniPotopljene(self):
 		for x in range(10):
@@ -56,8 +93,8 @@ class Polje:
 class Igra(Polje):
 	"""Razred, ki nadzoruje potek igre"""
 
-	def __init__(self):
-		super().__init__()
+	def __init__(self, mornarica=KLASIKA):
+		super().__init__(mornarica)
 		self.radar = [ [' '] * 10 for _ in range(10)]
 
 	def __str__(self):
@@ -71,13 +108,14 @@ class Igra(Polje):
 	def Shoot(self, x, y):
 		"""Osnovni strel v polje (x, y)"""
 		if x < 0 or y < 0 or x > 9 or y > 9: raise OutOfRange
-		if self.radar[x][y] in '.x': raise AlreadyShot
+		if self.radar[x][y] in '.xP': raise AlreadyShot
 		self.Reveal(x, y)
 		if self.radar[x][y] == 'x':
 			self.ladje -= 1
 			ladja = self.mornarica[self.field[x + 5][y + 5]]
 			ladja.zadeta()
 			if ladja.potopljena:
+				self.mornarica.pop(ladja.id)
 				for x in range(10):
 					for y in range(10):
 						if self.field[x + 5][y + 5] == ladja.id:
@@ -113,8 +151,8 @@ class Igra(Polje):
 
 class AI(Igra):
 
-	def __init__(self):
-		super().__init__()
+	def __init__(self, mornarica=KLASIKA):
+		super().__init__(mornarica)
 		self.faza = False
 
 	def RandomAI(self):
@@ -131,11 +169,11 @@ class AI(Igra):
 		for x in range(10):
 			for y in range(10):
 				if self.radar[x][y] == ' ': prazna[(x + y) % 2].append((x, y))
-		return random.choice(max(prazna))
+		return random.choice(prazna[0] if len(prazna[0]) < len(prazna[1]) else prazna[1])
 
-	def Hunt(self):
-		if all(self.radar[x][y] in " ." for x in range(10) for y in range(10)):
-			return self.SemiRandomAI()
+	def Hunt(self, method):
+		if all(self.radar[x][y] in " .P" for x in range(10) for y in range(10)):
+			return method(self)
 		smeri = [(0, 1), (1, 0), (0, -1), (-1, 0)]
 		for x in range(10):
 			for y in range(10):
@@ -165,9 +203,11 @@ class AI(Igra):
 		return self.SemiRandomAI()
 
 	def MonteCarlo(self, t):
+		if self.faza:
+			return self.SemiOptimal()
 		start = time.time()
 		if any(self.radar[x][y] == 'x' for x in range(10) for y in range(10)):
-			return self.Hunt()
+			return self.Hunt(self.SemiRandomAI)
 		verjetnosti = [ [0] * 10 for _ in range(10)]
 		n = 0
 		while n < 1000:
@@ -191,7 +231,8 @@ class AI(Igra):
 			if self.radar[p[0]][p[1]] == ' ': return p
 
 	def RekurzivnoPostavljanje(self, indeks, simulacija, tabela, start, t):
-		if time.time() - start > t: return
+		if time.time() - start > t:
+			return
 		if indeks == len(simulacija.mornarica):
 			if any(simulacija.field[x + 5][y + 5] == ' ' and self.radar[x][y] == 'x' for x in range(10) for y in range(10)):
 				return
@@ -213,12 +254,12 @@ class AI(Igra):
 	def SemiOptimal(self):
 		"""Izračuna verjetnosti v primeru, ko imamo eno ladjo"""
 		if any(self.radar[x][y] == 'x' for x in range(10) for y in range(10)):
-			return self.Hunt()
+			return self.Hunt(self.SemiRandomAI)
 		verjetnosti = [ [0] * 10 for _ in range(10)]
 		simulacija = Polje()
 		for x in range(10):
 			for y in range(10):
-				if self.radar[x][y] == '.':
+				if self.radar[x][y] == '.' or self.radar[x][y] == 'P':
 					simulacija.field[x + 5][y + 5] = '.'
 		simulacija.mornarica = self.mornarica.copy()
 		for ship in list(self.mornarica.values()):
@@ -243,7 +284,7 @@ class AI(Igra):
 		simulacija = Polje()
 		for x in range(10):
 			for y in range(10):
-				if self.radar[x][y] == '.':
+				if self.radar[x][y] == '.' or self.radar[x][y] == 'P':
 					simulacija.field[x + 5][y + 5] = '.'
 		simulacija.mornarica = self.mornarica.copy()
 		if any(self.radar[x][y] == 'x' for x in range(10) for y in range(10)):
@@ -270,36 +311,7 @@ class AI(Igra):
 		sez = sorted([(x, y) for x in range(10) for y in range(10)], key=lambda p: -verjetnosti[p[0]][p[1]])
 		for p in sez:
 			if self.radar[p[0]][p[1]] == ' ': return p
-
-class Ship:
-	"""Razred, ki vsebuje vse podatke o ladjah"""
-	def __init__(self, n, id):
-		self.length = n
-		self.id = id
-		self.nezadeta = n
-		self.potopljena = False
-		
-	def __str__(self):
-		"""Izpiše id ladje"""
-		return str(self.id)
-
-	def zadeta(self):
-		"""Zmanjša število polj in preveri, če je potopljena"""
-		self.nezadeta -= 1
-		if not self.nezadeta:
-			self.potopljena = True
-
-	def v_slovar(self):
-		return {
-			"l" : self.length,
-			"id" : self.id,
-			"nezadeta" : self.nezadeta,
-			"potopljena" : self.potopljena,
-		}
-
-	@staticmethod
-	def iz_slovarja(slovar):
-		X = Ship(int(slovar["l"]), slovar["id"])
-		X.nezadeta = int(slovar["nezadeta"])
-		X.potopljena = slovar["potopljena"]
-		return X
+	
+	def Kombinirana(self, t):
+		if self.faza: return self.Optimal(t)
+		return self.MonteCarlo(t)
