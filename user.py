@@ -15,7 +15,7 @@ class User:
 		if uporabnik is None:
 			raise ValueError("Uporabniško ime ne obstaja!")
 		elif uporabnik.preveri_geslo(geslo_v_cistopisu):
-			return uporabnik		
+			return uporabnik
 		else:
 			raise ValueError("Napačno geslo!")
 
@@ -80,9 +80,7 @@ class User:
 	def prost_id_igre(self):
 		return len(self.igre)
 
-	def nova_igra(self):
+	def nova_igra(self, n):
 		id = self.prost_id_igre()
-		self.igre[id] = igra.Enoigralski()
+		self.igre[id] = igra.Enoigralski(n)
 		return id
-
-A = User.iz_datoteke("a")

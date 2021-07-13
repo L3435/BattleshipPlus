@@ -7,7 +7,7 @@
 		<div class="control">
 		    <div class="field">
 				<div class="control has-icons-left has-icons-right">
-					<input class="input" type="text" placeholder="Uporabniško ime" name="username" 
+					<input class="input" type="text" placeholder="Uporabniško ime" name="username" autofocus
 					  % if defined('uname'):
 							value="{{ uname }}"
 					  % end
@@ -23,7 +23,7 @@
 				</div>
 			  </div>
 			<div class="field">
-				<p class="control has-icons-left has-icons-right">
+				<div class="control has-icons-left has-icons-right">
 				  <input class="input" type="password" placeholder="Geslo" name="geslo">
 				  <span class="icon is-left">
 					<i class="fas fa-lock"></i>
@@ -33,7 +33,7 @@
 					<i class="fas fa-exclamation-triangle"></i>
 				  </span>
 				  % end
-				</p>
+				</div>
 				% if defined('napaka'):
 				<p class="help is-danger">{{ napaka }}</p>
 				% end
@@ -50,6 +50,6 @@
 			<div class="buttons has-addons is-centered">
 				<a class="button is-link" href="/registracija">Registracija</a>
 			</div>
-		  </div>
+		</div>
 	</div>
 </section>

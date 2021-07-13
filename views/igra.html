@@ -17,7 +17,7 @@
 	}
 
 	.prazna:hover {
-		background-color: azure;
+		background-color: aqua;
 	}
 
 	.zgresena {
@@ -40,22 +40,31 @@
 			% for x in range(10):
 			<tr>
 				% for y in range(10):
-				% if igra.radar[x][y] == ' ':
-				<td class="prazna" style="padding: 0 0 0 0;">
-					<a href="/igra/{{id}}?x={{x}}&y={{y}}" style="display:block;width:100%;height:100%;">
+				% if igra.igralec.radar[x][y] == ' ':
+				<td
+				% if not igra.Konec():
+				class="prazna"
+				% end
+				style="padding: 0 0 0 0;">
+					% if not igra.Konec():
+					<a style="display:block;width:100%;height:100%;" href="/igra/{{id}}?x={{x}}&y={{y}}" >
 					</a>
+					% else:
+					<div style="display:block;width:100%;height:100%;">
+					</div>
+					% end
 				</td>
-				% elif igra.radar[x][y] == '.':
+				% elif igra.igralec.radar[x][y] == '.':
 				<td class="zgresena" style="padding: 0 0 0 0;">
 					<div style="display:block;width:100%;height:100%;">
 					</div>
 				</td>
-				% elif igra.radar[x][y] == 'x':
+				% elif igra.igralec.radar[x][y] == 'x':
 				<td class="zadeta" style="padding: 0 0 0 0;">
 					<div style="display:block;width:100%;height:100%;">
 					</div>
 				</td>
-				% elif igra.radar[x][y] == 'P':
+				% elif igra.igralec.radar[x][y] == 'P':
 				<td class="potopljena" style="padding: 0 0 0 0;">
 					<div style="display:block;width:100%;height:100%;">
 					</div>
@@ -67,7 +76,45 @@
 		</table>
     </div>
     <div class="column">
-      Second column
+		<table class="table is-bordered">
+			% for x in range(10):
+			<tr>
+				% for y in range(10):
+				% if igra.AI.radar[x][y] == ' ':
+				<td style="padding: 0 0 0 0;">
+					<div style="display:block;width:100%;height:100%;">
+					</div>
+				</td>
+				% elif igra.AI.radar[x][y] == '.':
+				<td class="zgresena" style="padding: 0 0 0 0;">
+					<div style="display:block;width:100%;height:100%;">
+					</div>
+				</td>
+				% elif igra.AI.radar[x][y] == 'x':
+				<td class="zadeta" style="padding: 0 0 0 0;">
+					<div style="display:block;width:100%;height:100%;">
+					</div>
+				</td>
+				% elif igra.AI.radar[x][y] == 'P':
+				<td class="potopljena" style="padding: 0 0 0 0;">
+					<div style="display:block;width:100%;height:100%;">
+					</div>
+				</td>
+				% end
+				% end
+			</tr>
+			% end
+		</table>
     </div>
   </div>
+  % if igra.Konec():
+  	<div class="container" style="width: 350px; max-width: 90%;">
+		<h1 class="title has-text-light has-text-centered">Konec igre!</h1>
+		% if igra.Konec() == 1:
+		<h2 class="subtitle has-text-light has-text-centered">Čestitke!</h2>
+		% else:
+		<h2 class="subtitle has-text-light has-text-centered">Več sreče prihodnjič!</h2>
+		% end
+	</div>
+% end
 </section>
