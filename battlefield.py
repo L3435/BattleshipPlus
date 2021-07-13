@@ -83,11 +83,6 @@ class Polje:
 				break
 			except CellTaken:
 				self.__init__(self.mornarica)
-	
-	def OdstraniPotopljene(self):
-		for x in range(10):
-			for y in range(10):
-				pass
 
 
 class Igra(Polje):
@@ -146,6 +141,11 @@ class Igra(Polje):
 			for y in range(10):
 				X.radar[x][y] = slovar["radar"][x][y]
 		X.mornarica = {id : Ship.iz_slovarja(slovar["mornarica"][id]) for id in slovar["mornarica"] }
+		c = 0
+		for x in range(10):
+			for y in range(10):
+				if X.radar[x][y] == 'x': c += 1
+		X.ladje = sum(ladja.length for ladja in X.mornarica.values()) - c
 		return X
 		
 
@@ -165,13 +165,31 @@ class AI(Igra):
 	
 	def SemiRandomAI(self):
 		"""Metoda, ki naključno strelja polovico polj (polja šahovnice iste barve)"""
-		prazna = [[], []]
+		mod = min(ship.length for ship in self.mornarica.values())
+		prazna = [[] for _ in range(mod)]
 		for x in range(10):
 			for y in range(10):
-				if self.radar[x][y] == ' ': prazna[(x + y) % 2].append((x, y))
-		return random.choice(prazna[0] if len(prazna[0]) < len(prazna[1]) else prazna[1])
+				if self.radar[x][y] == ' ': prazna[(x + y) % mod].append((x, y))
+		try:
+			return random.choice(min(prazna, key=lambda list: len(list)))
+		except IndexError:
+			return self.RandomAI()
 
-	def Hunt(self, method):
+	def BadHunt(self, method=RandomAI): # AI 1
+		if all(self.radar[x][y] in " .P" for x in range(10) for y in range(10)):
+			return method(self)
+		smeri = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+		for x in range(10):
+			for y in range(10):
+				if self.radar[x][y] == 'x':
+					for i, j in smeri:
+						try:
+							if self.radar[x + i][y + j] == ' ':
+								return (x + i, y + j)
+						except IndexError:
+							continue
+
+	def Hunt(self, method=SemiRandomAI): # AI 2
 		if all(self.radar[x][y] in " .P" for x in range(10) for y in range(10)):
 			return method(self)
 		smeri = [(0, 1), (1, 0), (0, -1), (-1, 0)]
@@ -200,32 +218,52 @@ class AI(Igra):
 					else:
 						i, j = smeri[1] if prosta[1] > prosta[3] else smeri[3]
 					return (x + i, y + j)
-		return self.SemiRandomAI()
 
-	def MonteCarlo(self, t):
-		if self.faza:
-			return self.SemiOptimal()
+	def MonteCarlo(self, t=3):
 		start = time.time()
 		if any(self.radar[x][y] == 'x' for x in range(10) for y in range(10)):
 			return self.Hunt(self.SemiRandomAI)
 		verjetnosti = [ [0] * 10 for _ in range(10)]
 		n = 0
-		while n < 1000:
+		postavitve = {}
+		for ship in self.mornarica.values():
+			postavitve[ship] = []
+			simulacija = Polje()
+			for x in range(10):
+				for y in range(10):
+					if self.radar[x][y] == '.' or self.radar[x][y] == 'P':
+						simulacija.field[x + 5][y + 5] = '.'
+			simulacija.mornarica = self.mornarica
+			for x in range(10):
+				for y in range(10):
+					for r in range(2):
+						try:
+							simulacija.SetShip(ship, x, y, r)
+							postavitve[ship].append((x,y,r))
+							simulacija.RemoveShip(ship, x, y, r)
+						except CellTaken:
+							continue
+		for _ in range(10000):
 			if time.time() - start > t:
 				break
 			simulacija = Polje()
 			simulacija.mornarica = self.mornarica
-			simulacija.RandomSetup()
+			legal = True
+			for ship in self.mornarica.values():
+				try:
+					simulacija.SetShip(ship, *random.choice(postavitve[ship]))
+				except CellTaken:
+					legal = False
+					continue
+			if not legal:
+				continue
 			if any(simulacija.field[x + 5][y + 5] != ' ' and self.radar[x][y] == '.' for x in range(10) for y in range(10)):
 				continue
 			for x in range(10):
 				for y in range(10):
 					if simulacija.field[x + 5][y + 5] != ' ':
 						verjetnosti[x][y] += 1
-			n += 1
-		if n < 250:
-			self.faza = True
-			return self.SemiOptimal()
+		
 		list = sorted([(x, y) for x in range(10) for y in range(10)], key=lambda p: -verjetnosti[p[0]][p[1]])
 		for p in list:
 			if self.radar[p[0]][p[1]] == ' ': return p
@@ -251,35 +289,9 @@ class AI(Igra):
 					except CellTaken:
 						continue
 
-	def SemiOptimal(self):
-		"""Izračuna verjetnosti v primeru, ko imamo eno ladjo"""
-		if any(self.radar[x][y] == 'x' for x in range(10) for y in range(10)):
-			return self.Hunt(self.SemiRandomAI)
-		verjetnosti = [ [0] * 10 for _ in range(10)]
-		simulacija = Polje()
-		for x in range(10):
-			for y in range(10):
-				if self.radar[x][y] == '.' or self.radar[x][y] == 'P':
-					simulacija.field[x + 5][y + 5] = '.'
-		simulacija.mornarica = self.mornarica.copy()
-		for ship in list(self.mornarica.values()):
-			for x in range(10):
-				for y in range(10):
-					for r in range(2):
-						try:
-							simulacija.SetShip(ship, x, y, r)
-							for i in range(ship.length):
-								verjetnosti[x + r * i][y + i - r * i] += 1
-							simulacija.RemoveShip(ship, x, y, r)
-						except CellTaken:
-							continue
-		sez = sorted([(x, y) for x in range(10) for y in range(10)], key=lambda p: -verjetnosti[p[0]][p[1]])
-		for p in sez:
-			if self.radar[p[0]][p[1]] == ' ': return p
-
-	def Optimal(self, t):
-		start = time.time()
+	def Optimal(self, t=1): # AI 3
 		"""Optimalna, a počasna strategija"""
+		start = time.time()
 		verjetnosti = [ [0] * 10 for _ in range(10)]
 		simulacija = Polje()
 		for x in range(10):
@@ -307,11 +319,7 @@ class AI(Igra):
 		else:
 			self.RekurzivnoPostavljanje(0, simulacija, verjetnosti, start, t)
 		if time.time() - start > t:
-			return self.SemiOptimal()
+			return self.MonteCarlo(3)
 		sez = sorted([(x, y) for x in range(10) for y in range(10)], key=lambda p: -verjetnosti[p[0]][p[1]])
 		for p in sez:
 			if self.radar[p[0]][p[1]] == ' ': return p
-	
-	def Kombinirana(self, t):
-		if self.faza: return self.Optimal(t)
-		return self.MonteCarlo(t)
