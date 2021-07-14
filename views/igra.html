@@ -31,6 +31,10 @@
 	.potopljena {
 		background-color: gray;
 	}
+
+	.ladja {
+		background-color: darkslategray;
+	}
 </style>
 
 <section class="section">
@@ -40,21 +44,7 @@
 			% for x in range(10):
 			<tr>
 				% for y in range(10):
-				% if igra.igralec.radar[x][y] == ' ':
-				<td
-				% if not igra.Konec():
-				class="prazna"
-				% end
-				style="padding: 0 0 0 0;">
-					% if not igra.Konec():
-					<a style="display:block;width:100%;height:100%;" href="/igra/{{id}}?x={{x}}&y={{y}}" >
-					</a>
-					% else:
-					<div style="display:block;width:100%;height:100%;">
-					</div>
-					% end
-				</td>
-				% elif igra.igralec.radar[x][y] == '.':
+				% if igra.igralec.radar[x][y] == '.':
 				<td class="zgresena" style="padding: 0 0 0 0;">
 					<div style="display:block;width:100%;height:100%;">
 					</div>
@@ -69,6 +59,25 @@
 					<div style="display:block;width:100%;height:100%;">
 					</div>
 				</td>
+				% elif igra.Konec() and igra.igralec.field[x + 5][y + 5] != ' ':
+				<td class="ladja" style="padding: 0 0 0 0;">
+					<div style="display:block;width:100%;height:100%;">
+					</div>
+				</td>
+				% elif igra.igralec.radar[x][y] == ' ':
+				<td
+				% if not igra.Konec():
+				class="prazna"
+				% end
+				style="padding: 0 0 0 0;">
+					% if not igra.Konec():
+					<a style="display:block;width:100%;height:100%;" href="/igra/{{id}}?x={{x}}&y={{y}}" >
+					</a>
+					% else:
+					<div style="display:block;width:100%;height:100%;">
+					</div>
+					% end
+				</td>
 				% end
 				% end
 			</tr>
@@ -80,12 +89,7 @@
 			% for x in range(10):
 			<tr>
 				% for y in range(10):
-				% if igra.AI.radar[x][y] == ' ':
-				<td style="padding: 0 0 0 0;">
-					<div style="display:block;width:100%;height:100%;">
-					</div>
-				</td>
-				% elif igra.AI.radar[x][y] == '.':
+				% if igra.AI.radar[x][y] == '.':
 				<td class="zgresena" style="padding: 0 0 0 0;">
 					<div style="display:block;width:100%;height:100%;">
 					</div>
@@ -97,6 +101,16 @@
 				</td>
 				% elif igra.AI.radar[x][y] == 'P':
 				<td class="potopljena" style="padding: 0 0 0 0;">
+					<div style="display:block;width:100%;height:100%;">
+					</div>
+				</td>
+				% elif igra.AI.field[x + 5][y + 5] != ' ':
+				<td class="ladja" style="padding: 0 0 0 0;">
+					<div style="display:block;width:100%;height:100%;">
+					</div>
+				</td>
+				% elif igra.AI.radar[x][y] == ' ':
+				<td style="padding: 0 0 0 0;">
 					<div style="display:block;width:100%;height:100%;">
 					</div>
 				</td>
