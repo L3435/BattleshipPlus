@@ -1,3 +1,4 @@
+from errors import AlreadyShot
 import bottle
 import battlefield
 import user
@@ -30,9 +31,9 @@ def prijava_post():
 	username = bottle.request.forms.getunicode("username")
 	geslo = bottle.request.forms.getunicode("geslo")
 	if not username:
-		return bottle.template("prijava.html", napaka="Vnesi uporabniško ime!", uname=username)
+		return bottle.template("prijava.html", napaka="Vnesi uporabniško ime!", uname=username, user=trenutni_uporabnik())
 	if not geslo:
-		return bottle.template("prijava.html", napaka="Vnesi geslo!", uname=username)
+		return bottle.template("prijava.html", napaka="Vnesi geslo!", uname=username, user=trenutni_uporabnik())
 	try:
 		user.User.prijava(username, geslo)
 		bottle.response.set_cookie(
@@ -41,7 +42,7 @@ def prijava_post():
 		bottle.redirect("/")
 	except ValueError as e:
 		return bottle.template(
-			"prijava.html", napaka=e.args[0], uname=username
+			"prijava.html", napaka=e.args[0], uname=username, user=trenutni_uporabnik()
 		)
 
 @bottle.get("/registracija")
@@ -54,11 +55,11 @@ def registracija_post():
 	geslo1 = bottle.request.forms.getunicode("geslo1")
 	geslo2 = bottle.request.forms.getunicode("geslo2")
 	if not username:
-		return bottle.template("registracija.html", napaka="Vnesi uporabniško ime!", uname=username)
+		return bottle.template("registracija.html", napaka="Vnesi uporabniško ime!", uname=username, user=trenutni_uporabnik())
 	if not geslo1:
-		return bottle.template("registracija.html", napaka="Vnesi geslo!", uname=username)
+		return bottle.template("registracija.html", napaka="Vnesi geslo!", uname=username, user=trenutni_uporabnik())
 	if geslo1 != geslo2:
-		return bottle.template("registracija.html", napaka="Gesli se ne ujemata!", uname=username)
+		return bottle.template("registracija.html", napaka="Gesli se ne ujemata!", uname=username, user=trenutni_uporabnik())
 	try:
 		user.User.registracija(username, geslo1)
 		bottle.response.set_cookie(
@@ -67,7 +68,7 @@ def registracija_post():
 		bottle.redirect("/")
 	except ValueError as e:
 		return bottle.template(
-			"registracija.html", napaka=e.args[0]
+			"registracija.html", napaka=e.args[0], uname=username, user=trenutni_uporabnik()
 		)
 
 @bottle.get("/odjava")
@@ -83,13 +84,16 @@ def profil():
 	
 @bottle.get("/igra/<id:int>")
 def trenutna(id):
+	user = trenutni_uporabnik()
+	igra = user.igre[id]
 	if bottle.request.query.x:
 		x = int(bottle.request.query.x)
 		y = int(bottle.request.query.y)
-		user = trenutni_uporabnik()
-		user.igre[id].Poteza(x, y, 0)
+		try: igra.Poteza(x, y)
+		except AlreadyShot: pass
+		if igra.Konec(): user.konec_igre(id)
 		user.v_datoteko()
-	return bottle.template("igra.html", id=id, igra=trenutni_uporabnik().igre[id].igralec, user=trenutni_uporabnik())
+	return bottle.template("igra.html", id=id, igra=igra, user=trenutni_uporabnik())
 
 @bottle.post("/igra")
 def nova_igra():
@@ -98,8 +102,21 @@ def nova_igra():
 	user.v_datoteko()
 	bottle.redirect(f"/igra/{id}")
 
+@bottle.get("/nastavitve")
+def nastavitve():
+	if trenutni_uporabnik() == None: bottle.redirect("/prijava")
+	return bottle.template("nastavitve.html", user=trenutni_uporabnik())
+
+@bottle.post("/nastavitve")
+def nastavitve_post():
+	n = int(bottle.request.forms.getunicode('tezavnost'))
+	user = trenutni_uporabnik()
+	id = user.nova_igra(n)
+	user.v_datoteko()
+	bottle.redirect(f"/igra/{id}")
+
 @bottle.get("/img/<picture>")
 def slike(picture):
 	return bottle.static_file(picture, "img")
 
-bottle.run(host="0.0.0.0", reloader=True, debug=True)
+bottle.run(host="0.0.0.0", reloader=True)

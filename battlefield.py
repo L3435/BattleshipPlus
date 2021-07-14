@@ -179,15 +179,20 @@ class AI(Igra):
 		if all(self.radar[x][y] in " .P" for x in range(10) for y in range(10)):
 			return method(self)
 		smeri = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+		options = []
 		for x in range(10):
 			for y in range(10):
 				if self.radar[x][y] == 'x':
 					for i, j in smeri:
 						try:
 							if self.radar[x + i][y + j] == ' ':
-								return (x + i, y + j)
+								options.append((x + i, y + j))
 						except IndexError:
 							continue
+		try:
+			return random.choice(options)
+		except IndexError:
+			return self.RandomAI()
 
 	def Hunt(self, method=SemiRandomAI): # AI 2
 		if all(self.radar[x][y] in " .P" for x in range(10) for y in range(10)):

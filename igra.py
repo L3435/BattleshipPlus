@@ -11,8 +11,14 @@ class Enoigralski:
 	def Poteza(self, x, y):
 		self.igralec.Shoot(x, y)
 		if self.tezavnost == 1: self.AI.Shoot(*self.AI.BadHunt())
-		if self.tezavnost == 2: self.AI.Shoot(*self.AI.Hunt())
-		if self.tezavnost == 3: self.AI.Shoot(*self.AI.Optimal())
+		elif self.tezavnost == 2: self.AI.Shoot(*self.AI.Hunt())
+		elif self.tezavnost == 3: self.AI.Shoot(*self.AI.Optimal())
+		else:
+			for x in range(10):
+				for y in range(10):
+					if self.AI.field[x + 5][y + 5] != ' ' and self.AI.radar[x][y] == ' ':
+						self.AI.Shoot(x, y)
+						return
 
 	def Konec(self):
 		if not self.igralec.Poteka(): return 1

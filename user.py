@@ -8,6 +8,7 @@ class User:
 		self.username = name
 		self.pwd = pwd
 		self.igre = dict({})
+		self.stats = {1 : (0, 0), 2 : (0, 0), 3 : (0, 0)}
 
 	@staticmethod
 	def prijava(uporabnisko_ime, geslo_v_cistopisu):
@@ -42,7 +43,8 @@ class User:
 		return {
 			"username": self.username,
 			"pwd": self.pwd,
-			"igre": {id : self.igre[id].v_slovar() for id in self.igre}
+			"igre": {id : self.igre[id].v_slovar() for id in self.igre},
+			"stats": self.stats
 		}
 
 	def v_datoteko(self):
@@ -57,7 +59,7 @@ class User:
 
 	@staticmethod
 	def UserFile(username):
-		return f"user_{username}.json"
+		return f"users/user_{username}.json"
 		# Windows ne dovoli uporabe določenih imen za datoteke, kar obidemo s predpono "user_"
 
 	@staticmethod
@@ -66,6 +68,7 @@ class User:
 		pwd = slovar["pwd"]
 		uporabnik = User(username, pwd)
 		uporabnik.igre = {int(id) : igra.Enoigralski.iz_slovarja(slovar["igre"][id]) for id in slovar["igre"]}
+		uporabnik.stats = {int(n) : slovar["stats"][n] for n in slovar["stats"]}
 		return uporabnik
 
 	@staticmethod
@@ -84,3 +87,11 @@ class User:
 		id = self.prost_id_igre()
 		self.igre[id] = igra.Enoigralski(n)
 		return id
+
+	def konec_igre(self, id):
+		igra = self.igre[id]
+		self.stats[igra.tezavnost][igra.Konec() - 1] += 1
+		for i in range(id, len(self.igre) - 1):
+			self.igre[i] = self.igre[i + 1]
+		self.igre.pop(len(self.igre) - 1)
+		self.v_datoteko()
