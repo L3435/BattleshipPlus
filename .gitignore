@@ -1,4 +1,6 @@
 *.json
+*.xlsx
+AI_analysis.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
