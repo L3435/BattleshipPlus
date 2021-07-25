@@ -3,6 +3,7 @@ import bottle
 import battlefield
 import user
 import igra
+import statistika
 
 USERNAME_COOKIE = "username"
 SECRET = "2 + 2 is 4 - 1 is 3 quickmaths"
@@ -114,6 +115,10 @@ def nastavitve_post():
 	id = user.nova_igra(n)
 	user.v_datoteko()
 	bottle.redirect(f"/igra/{id}")
+	
+@bottle.get("/lestvice")
+def lestvice():
+	return bottle.template("lestvice.html", user=trenutni_uporabnik(), statistika = statistika.get_stats())
 
 @bottle.get("/img/<picture>")
 def slike(picture):
