@@ -1,40 +1,46 @@
+from __future__ import annotations
 import battlefield
 
-class Enoigralski:
-	def __init__(self, n=1):
-		self.igralec = battlefield.Igra()
-		self.igralec.RandomSetup()
-		self.AI = battlefield.AI()
-		self.AI.RandomSetup()
+class Igra:
+	def __init__(self, n: int=1) -> None:
+		self.igralec1 = battlefield.Polje()
+		self.igralec1.RandomSetup()
+		self.igralec2 = battlefield.Polje()
+		self.igralec2.RandomSetup()
 		self.tezavnost = n
 
-	def Poteza(self, x, y):
-		self.igralec.Shoot(x, y)
-		if self.tezavnost == 1: self.AI.Shoot(*self.AI.BadHunt())
-		elif self.tezavnost == 2: self.AI.Shoot(*self.AI.Hunt())
-		elif self.tezavnost == 3: self.AI.Shoot(*self.AI.Optimal())
-		else:
-			for x in range(10):
-				for y in range(10):
-					if self.AI.field[x + 5][y + 5] != ' ' and self.AI.radar[x][y] == ' ':
-						self.AI.Shoot(x, y)
-						return
-
-	def Konec(self):
-		if not self.igralec.Poteka(): return 1
-		if not self.AI.Poteka(): return 2
+	def Konec(self) -> int:
+		"""Preveri, če je igra končana"""
+		if not self.igralec1.Poteka(): return 1
+		if not self.igralec2.Poteka(): return 2
 		return 0
 
-	def v_slovar(self):
+	def v_slovar(self) -> dict:
+		"""Zapiše stanje igre v slovar"""
 		return {
 			"tezavnost" : self.tezavnost,
-			"P1" : self.igralec.v_slovar(),
-			"P2" : self.AI.v_slovar(),
+			"P1" : self.igralec1.v_slovar(),
+			"P2" : self.igralec2.v_slovar(),
 		}
 
 	@staticmethod
-	def iz_slovarja(slovar):
+	def iz_slovarja(slovar: dict) -> Igra:
+		"""Iz zapisa v slovarju vrne igro"""
 		X = Enoigralski(int(slovar["tezavnost"]))
-		X.igralec = battlefield.Igra.iz_slovarja(slovar["P1"])
-		X.AI = battlefield.AI.iz_slovarja(slovar["P2"])
+		X.igralec1 = battlefield.Polje.iz_slovarja(slovar["P1"])
+		X.igralec2 = battlefield.Polje.iz_slovarja(slovar["P2"])
 		return X
+
+class Enoigralski(Igra):
+	def Poteza(self, x: int, y: int) -> None:
+		"""Ustreli polje (x, y) in naredi računalniško potezo"""
+		self.igralec1.Shoot(x, y)
+		P2 = self.igralec2
+		if self.tezavnost == 1: P2.Shoot(*P2.LahekAI())
+		elif self.tezavnost == 2: P2.Shoot(*P2.SrednjiAI())
+		elif self.tezavnost == 3: P2.Shoot(*P2.Optimal())
+		else:
+			for x, y in P2:
+				if P2.polje[x + 5][y + 5] != ' ' and P2.radar[x][y] == ' ':
+					P2.Shoot(x, y)
+					return
