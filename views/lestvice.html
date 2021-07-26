@@ -1,10 +1,10 @@
 % rebase("menu.html")
 
 <style>
-	.table {
-		margin-left: auto;
-		margin-right: auto;
-	}
+    .table {
+      margin-left: auto;
+      margin-right: auto;
+    }
 </style>
 
 <section class="section">
@@ -15,27 +15,30 @@
 			<table class="table has-background-dark is-centered">
 				<thead>
 					<tr>
-						<th class="has-text-light"><abbr title="Uvrstitev">Uvr</abbr></th>
+						<th class="has-text-light" style="text-align:center"><abbr title="Uvrstitev">Uvr</abbr></th>
 						<th class="has-text-light">Uporabnik</th>
-						<th class="has-text-light">Zmage</th>
-						<th class="has-text-light">Porazi</th>
-						<th class="has-text-light"><abbr title="Delež zmag">%</abbr></th>
+						<th class="has-text-light"><abbr title="Zmage">W</abbr></th>
+						<th class="has-text-light"><abbr title="Porazi">L</abbr></th>
+						<th class="has-text-light" style="text-align:center"><abbr title="Delež zmag">%</abbr></th>
 					</tr>
 				</thead>
 				<tbody>
-					% for j, x in enumerate(sorted(statistika, key=lambda x:
-					(-statistika[x][str(i)][0],statistika[x][str(i)][1]))):
+					% for j, x in enumerate(sorted(statistika, key=lambda x: (-statistika[x][str(i)][0],statistika[x][str(i)][1]))):
+					% if j < 10 and statistika[x][str(i)][0] > 0:
 					<tr>
-						<td class="has-text-light">{{j + 1}}.</td>
+						<td class="has-text-light" style="text-align:right">{{j + 1}}.</td>
+						% if len(x) < 16:
 						<td class="has-text-light">{{x}}</td>
-						<td class="has-text-light">{{statistika[x][str(i)][0]}}</td>
-						<td class="has-text-light">{{statistika[x][str(i)][1]}}</td>
-						<td class="has-text-light">{{str(round(100 * statistika[x][str(i)][0] /
-							(statistika[x][str(i)][0] + statistika[x][str(i)][1]), 2)) + " %" if
-							(statistika[x][str(i)][0] + statistika[x][str(i)][1]) else "NaN"}}</td>
+						% else:
+						<td class="has-text-light"><abbr title={{x}}>{{x[:12] + "..."}}</abbr></td>
+						% end
+						<td class="has-text-light" style="text-align:right">{{statistika[x][str(i)][0]}}</td>
+						<td class="has-text-light" style="text-align:right">{{statistika[x][str(i)][1]}}</td>
+						<td class="has-text-light" style="text-align:right">{{str(round(100 * statistika[x][str(i)][0] / (statistika[x][str(i)][0] + statistika[x][str(i)][1]), 2)) + " %" if (statistika[x][str(i)][0] + statistika[x][str(i)][1]) else "NaN"}}</td>
 					</tr>
+					% end
+					% end
 				</tbody>
-				% end
 			</table>
 		</div>
 		% end
