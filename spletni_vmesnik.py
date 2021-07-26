@@ -96,11 +96,13 @@ def trenutna(id):
 		user.v_datoteko()
 	return bottle.template("igra.html", id=id, igra=igra, user=trenutni_uporabnik())
 
-@bottle.post("/igra")
-def nova_igra():
+@bottle.get("/igra/<id:int>/<metoda>")
+def sprememba_metode(id, metoda):
 	user = trenutni_uporabnik()
-	id = user.nova_igra()
-	user.v_datoteko()
+	igra = user.igre[id]
+	if igra.plus and igra.igralec2.metoda_dostopna(metoda):
+		igra.selected = metoda
+		user.v_datoteko()
 	bottle.redirect(f"/igra/{id}")
 
 @bottle.get("/nastavitve")
@@ -124,4 +126,4 @@ def lestvice():
 def slike(picture):
 	return bottle.static_file(picture, "img")
 
-bottle.run(host="0.0.0.0", reloader=True)
+bottle.run(host="0.0.0.0", reloader=True, debug=True)

@@ -1,16 +1,23 @@
 from __future__ import annotations
+from ast import Index
+from types import MethodType
 from errors import *
 import random
 import time
 
+MEDIUM = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)]
+BIG = [(i, j) for i in range(-1, 2) for j in range(-1, 2)]
+
 class Ladja:
 	"""Razred, ki vsebuje vse podatke o ladjah"""
 
-	def __init__(self, n: int, id: int) -> None:
+	def __init__(self, n: int, id: int, metoda: str) -> None:
 		self.dolzina = n
 		self.id = id
 		self.nezadeta = n
 		self.potopljena = False
+		self.metoda = metoda
+		self.counter = 0
 		
 	def __str__(self) -> str:
 		"""Izpiše id ladje"""
@@ -22,41 +29,46 @@ class Ladja:
 		if not self.nezadeta:
 			self.potopljena = True
 
+	def special(self):
+		return self.dolzina == self.nezadeta and self.counter == 8 - self.dolzina
+
 	def v_slovar(self) -> dict:
 		return {
 			"l" : self.dolzina,
 			"id" : self.id,
 			"nezadeta" : self.nezadeta,
 			"potopljena" : self.potopljena,
+			"metoda" : self.metoda,
+			"counter" : self.counter
 		}
 
 	@staticmethod
 	def iz_slovarja(slovar: dict) -> Ladja:
-		X = Ladja(int(slovar["l"]), slovar["id"])
+		X = Ladja(int(slovar["l"]), slovar["id"], slovar["metoda"])
 		X.nezadeta = int(slovar["nezadeta"])
 		X.potopljena = slovar["potopljena"]
+		X.counter = int(slovar["counter"])
 		return X
 
 KLASIKA = {
-			"A" : Ladja(5, "A"),
-			"B" : Ladja(4, "B"),
-			"C" : Ladja(3, "C"),
-			"D" : Ladja(3, "D"),
-			"E" : Ladja(2, "E")
+			"A" : Ladja(5, "A", "BigShot"),
+			"B" : Ladja(4, "B", "MedShot"),
+			"C" : Ladja(3, "C", "Torpedo"),
+			"D" : Ladja(3, "D", "Cluster"),
+			"E" : Ladja(2, "E", "Radar")
 		}
 
 class Polje:
 	"""Razred z metodami za pripravo igralnega polja"""
 
-	def __init__(self, mornarica: dict=KLASIKA) -> None:
+	def __init__(self, mornarica: dict=KLASIKA, plus: bool=False) -> None:
 		self.polje = [ ['x'] * 20 for _ in range(20)]
 		for x, y in self:
 			self.polje[x + 5][y + 5] = ' '
 		self.mornarica = mornarica.copy()
-		for id in self.mornarica:
-			mornarica[id] = Ladja(mornarica[id].dolzina, mornarica[id].id)
 		self.ladje = len(self.mornarica)
 		self.radar = [ [' '] * 10 for _ in range(10)]
+		self.plus = plus
 
 	def __str__(self) -> str:
 		"""Izpiše trenutno stanje polja"""
@@ -106,6 +118,18 @@ class Polje:
 			except CellTaken:
 				self.ClearField()
 
+	def ladja_z_metodo(self, metoda: str) -> Ladja:
+		"""Poišče ladjo s posebno metodo streljanja"""
+		for ship in self.mornarica.values():
+			if ship.metoda == metoda:
+				return ship
+
+	def metoda_dostopna(self, metoda: str) -> bool:
+		"""Preveri, ali lahko streljamo z izbrano metodo"""
+		ladja = self.ladja_z_metodo(metoda)
+		if ladja == None: return False
+		return ladja.special()
+
 	def Reveal(self, x: int, y: int) -> None:
 		"""Prikaže izid streljanja polja (x, y) na radarju"""
 		self.radar[x][y] = '.' if self.polje[x + 5][y + 5] == ' ' else 'x'
@@ -119,6 +143,47 @@ class Polje:
 			ladja.zadeta()
 			if ladja.potopljena:
 				self.Sink(ladja)
+
+	def ShootRange(self, x: int, y: int, target: list[tuple[int, int]]) -> None:
+		"""Strelja vsa polja v določeni obliki"""
+		for i, j in target:
+			try:
+				if x + i < 0 or y + j < 0: raise IndexError
+				self.Shoot(x + i, y + j)
+			except AlreadyShot: continue
+			except IndexError: continue
+	
+	def MedShot(self, x: int, y: int) -> None:
+		"""Zadane 5 polj v okolici tarče"""
+		self.ShootRange(x, y, MEDIUM)
+	
+	def BigShot(self, x: int, y: int) -> None:
+		"""Zadane 9 polj v okolici tarče"""
+		self.ShootRange(x, y, BIG)
+
+	def Cluster(self, x: int, y: int) -> None:
+		"""Zadane tri naključna polja v okolici tarče"""
+		target = BIG.copy()
+		random.shuffle(target)
+		self.ShootRange(x, y, target[:3])
+
+	def Torpedo(self, x: int, y: int) -> None:
+		"""Po polju pošlje torpedo"""
+		smer = int(random.random() * 4)
+		smeri = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+		start = [(0, y), (9, y), (x, 0), (x, 9)]
+		x, y = start[smer]
+		i, j = smeri[smer]
+		target = []
+		for _ in range(10):
+			target.append((x, y))
+			if self.polje[x + 5][y + 5] != ' ' and self.radar[x][y] not in 'xP':
+				break
+			x, y = x + i, y + j
+		self.ShootRange(0, 0, target)
+
+	def Radar(self, x: int, y: int):
+		pass
 	
 	def Sink(self, ladja: Ladja) -> None:
 		"""Označi ladjo kot potopljeno"""
@@ -328,20 +393,20 @@ class Polje:
 			if self.radar[i][j] == 'x':
 				x, y = i, j
 				break
-			for ship in list(self.mornarica.values()):
-				simulacija.mornarica.pop(ship.id)
-				for i in range(ship.dolzina):
-					for r in range(2):
-						try:
-							simulacija.SetShip(ship, x - r * i,
-								y - i + r * i, r)
-							self.RekurzivnoPostavljanje(0,
-								simulacija,	tabela, start, t)
-							simulacija.RemoveShip(ship, x - r * i,
-								y - i + r * i, r)
-						except CellTaken:
-							continue
-				simulacija.mornarica[ship.id] = ship
+		for ship in list(self.mornarica.values()):
+			simulacija.mornarica.pop(ship.id)
+			for i in range(ship.dolzina):
+				for r in range(2):
+					try:
+						simulacija.SetShip(ship, x - r * i,
+							y - i + r * i, r)
+						self.RekurzivnoPostavljanje(0,
+							simulacija,	tabela, start, t)
+						simulacija.RemoveShip(ship, x - r * i,
+							y - i + r * i, r)
+					except CellTaken:
+						continue
+			simulacija.mornarica[ship.id] = ship
 
 	def Optimal(self, t: float=1) -> tuple[int, int]:
 		"""Metoda, ki vrne polje, na katerem je najbolj verjetno ladja"""

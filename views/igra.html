@@ -2,18 +2,18 @@
 
 <style>
 	table {
-		width: 350px;
-		height: 350px;
+		width: 400px;
+		height: 400px;
 		margin-left: auto;
 		margin-right: auto;
 	}
 
 	td {
-		width: 35px;
+		width: 40px;
 	}
 
 	tr {
-		height: 35px;
+		height: 40px;
 	}
 
 	.prazna:hover {
@@ -73,6 +73,17 @@
 				</tr>
 				% end
 			</table>
+			% if igra.plus:
+			<div class="buttons is-centered">
+				% for ship in igra.igralec2.mornarica.values():
+				% if ship.special() and not ship.metoda == igra.selected:
+				<a class="button is-info" href="/igra/{{id}}/{{ship.metoda}}">{{ship.metoda + f" ({ship.counter}/{8 - ship.dolzina})"}}</a>
+				% else:
+				<a class="button is-info"href="/igra/{{id}}/{{ship.metoda}}" disabled>{{ship.metoda + f" ({ship.counter}/{8 - ship.dolzina})"}}</a>
+				% end
+				% end
+				% end
+			</div>
 		</div>
 		<div class="column">
 			<table class="table is-bordered">

@@ -48,16 +48,14 @@ def OnePlayer():
 
 def AI_Testing():
 	"""Vmesnik za opazovanje AI"""
-	P = battlefield.AI()
-	P.RandomSetup()
-	for _ in range(100):
-		if any(P.radar[x][y] == 'x' for x in range(10) for y in range(10)):
-			P.Shoot(*P.Hunt())
-		else:
-			P.Shoot(*P.SemiOptimal())
-		print(P)
-		print("===================")
-		if not P.Poteka():
-			break
+	for _ in range(1):
+		P = battlefield.AI()
+		P.RandomSetup()
+		total = 0
+		while P.Poteka():
+			total += 1
+			P.Shoot(*P.MonteCarlo(5))
+		print("======")
+	print(total / 100)
 
 AI_Testing()

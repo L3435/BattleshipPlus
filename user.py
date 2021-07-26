@@ -3,6 +3,7 @@ import hashlib
 import json
 import random
 import igra
+import statistika
 
 class User:
 	def __init__(self, name: str, pwd: str) -> None:
@@ -76,7 +77,7 @@ class User:
 		username = slovar["username"]
 		pwd = slovar["pwd"]
 		user = User(username, pwd)
-		user.igre = {int(id) : igra.Enoigralski.iz_slovarja(slovar["igre"][id])
+		user.igre = {int(id) : igra.Igra.iz_slovarja(slovar["igre"][id])
 			for id in slovar["igre"]}
 		user.stats = {int(n) : slovar["stats"][n] for n in slovar["stats"]}
 		return user
@@ -98,7 +99,7 @@ class User:
 	def nova_igra(self, tezavnost: int) -> int:
 		"""Ustvari novo igro"""
 		id = self.prost_id_igre()
-		self.igre[id] = igra.Enoigralski(tezavnost)
+		self.igre[id] = igra.Igra(tezavnost)
 		return id
 
 	def konec_igre(self, id: int) -> None:
@@ -106,6 +107,9 @@ class User:
 		igra = self.igre[id]
 		if igra.tezavnost in [1, 2, 3]:
 			self.stats[igra.tezavnost][igra.Konec() - 1] += 1
+		stats = statistika.get_stats()
+		stats[self.username] = self.stats
+		statistika.save_stats(stats)
 		for i in range(id, len(self.igre) - 1):
 			self.igre[i] = self.igre[i + 1]
 		self.igre.pop(len(self.igre) - 1)
