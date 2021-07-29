@@ -73,14 +73,16 @@
 				</tr>
 				% end
 			</table>
-			% if igra.tezavnost == 4 and not igra.Konec():
+			% if igra.tezavnost == 0 and not igra.Konec():
 			<div class="buttons is-centered">
 				% for ship in igra.igralec2.mornarica.values():
 				% if ship.metoda and ship.nezadeta == ship.dolzina:
 				% if ship.special() and not ship.metoda == igra.selected:
 				<a class="button is-info" href="/igra/{{id}}/{{ship.metoda}}">{{ship.metoda + f" ({ship.counter}/{8 - ship.dolzina})"}}</a>
-				% else:
+				% elif not ship.metoda == igra.selected:
 				<a class="button is-info"href="/igra/{{id}}/{{ship.metoda}}" disabled>{{ship.metoda + f" ({ship.counter}/{8 - ship.dolzina})"}}</a>
+				% else:
+				<a class="button is-success"href="/igra/{{id}}/{{ship.metoda}}">{{ship.metoda + f" ({ship.counter}/{8 - ship.dolzina})"}}</a>
 				% end
 				% end
 				% end
@@ -124,6 +126,8 @@
 		<h1 class="title has-text-light has-text-centered">Konec igre!</h1>
 		% if igra.Konec() == 1:
 		<h2 class="subtitle has-text-light has-text-centered">Čestitke!</h2>
+		% elif igra.Konec() == 2:
+		<h2 class="subtitle has-text-light has-text-centered">Neodločeno!</h2>
 		% else:
 		<h2 class="subtitle has-text-light has-text-centered">Več sreče prihodnjič!</h2>
 		% end
