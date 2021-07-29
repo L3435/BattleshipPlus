@@ -59,7 +59,7 @@ class Igra:
 			for metoda in AI_MAP:
 				if P1.metoda_dostopna(metoda):
 					AI_MAP[metoda][0](P2, *AI_MAP[metoda][1](P2))
-					P1.ladja_z_metodo(metoda).counter = 0
+					P1.ladja_z_metodo(metoda).counter = -1
 					return
 			if P2.metoda_dostopna("Cluster"):
 				verjetnosti = P2.Optimal()
@@ -72,6 +72,7 @@ class Igra:
 					P2.Shoot(x2, y2)
 				else:
 					P2.Cluster(x1, y1)
+					P1.ladja_z_metodo("Cluster").counter = -1
 				return
 			else: P2.Shoot(*P2.OptimalShot())
 			return
@@ -90,7 +91,7 @@ class Igra:
 		P2 = self.igralec2
 		MAP[self.selected](P1, x, y)
 		if self.selected:
-			P2.ladja_z_metodo(self.selected).counter = 0
+			P2.ladja_z_metodo(self.selected).counter = -1
 		self.selected = None
 		self.poteze += 1
 		self.AI_Poteza()
@@ -99,6 +100,6 @@ class Igra:
 		P1 = self.igralec1
 		P2 = self.igralec2
 		for ship in P1.mornarica.values():
-			ship.counter = min(ship.counter + 1, 8 - ship.dolzina)
+			ship.counter = min(ship.counter + 1, 5)
 		for ship in P2.mornarica.values():
-			ship.counter = min(ship.counter + 1, 8 - ship.dolzina)
+			ship.counter = min(ship.counter + 1, 5)

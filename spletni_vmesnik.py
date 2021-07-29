@@ -30,6 +30,10 @@ def zacetna_stran():
 def pravila_igre():
 	return bottle.template("pravila.html", user=trenutni_uporabnik())
 
+@bottle.get("/pravila_plus")
+def pravila_plus():
+	return bottle.template("pravila_plus.html", user=trenutni_uporabnik())
+
 @bottle.get("/prijava")
 def prijava():
 	return bottle.template("prijava.html", user=trenutni_uporabnik())
@@ -138,7 +142,7 @@ def lestvice():
 	return bottle.template("lestvice.html", user=trenutni_uporabnik(), statistika = statistika.get_stats())
 
 @bottle.get("/lestvice_plus")
-def lestvice():
+def lestvice_plus():
 	return bottle.template("lestvice_plus.html", user=trenutni_uporabnik(), statistika = statistika.get_stats())
 
 @bottle.get("/img/<picture>")

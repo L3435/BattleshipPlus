@@ -17,7 +17,7 @@ class Ladja:
 		self.nezadeta = n
 		self.potopljena = False
 		self.metoda = metoda
-		self.counter = 0
+		self.counter = 5 - self.dolzina
 		
 	def __str__(self) -> str:
 		"""Izpiše id ladje"""
@@ -30,7 +30,7 @@ class Ladja:
 			self.potopljena = True
 
 	def special(self):
-		return self.dolzina == self.nezadeta and self.counter == 8 - self.dolzina
+		return self.dolzina == self.nezadeta and self.counter == 5
 
 	def v_slovar(self) -> dict:
 		return {
