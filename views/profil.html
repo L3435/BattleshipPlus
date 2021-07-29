@@ -27,6 +27,7 @@
 						<th class="has-text-light" style="text-align:center">Način igre</th>
 						<th class="has-text-light">Težavnost</th>
 						<th class="has-text-light">Zmage</th>
+						<th class="has-text-light">Neodločeni izidi</th>
 						<th class="has-text-light">Porazi</th>
 						<th class="has-text-light" style="text-align:center">Delež zmag</th>
 					</tr>
@@ -38,9 +39,18 @@
 						<td class="has-text-light" style="text-align:center">{{i}}</td>
 						<td class="has-text-light" style="text-align:center">{{user.stats[i][0]}}</td>
 						<td class="has-text-light" style="text-align:center">{{user.stats[i][1]}}</td>
-						<td class="has-text-light" style="text-align:right">{{str(round(100 * user.stats[i][0] / (user.stats[i][0] + user.stats[i][1]), 2)) + " %" if (user.stats[i][0] + user.stats[i][1]) else "NaN"}}</td>
+						<td class="has-text-light" style="text-align:center">{{user.stats[i][2]}}</td>
+						<td class="has-text-light" style="text-align:right">{{str(round(100 * user.stats[i][0] / sum(user.stats[i][p] for p in range(3)), 2)) + " %" if sum(user.stats[i][p] for p in range(3)) else "NaN"}}</td>
 					</tr>
 					% end
+					<tr>
+						<td class="has-text-light">Plus</td>
+						<td class="has-text-light" style="text-align:center">/</td>
+						<td class="has-text-light" style="text-align:center">{{user.stats[0][0]}}</td>
+						<td class="has-text-light" style="text-align:center">{{user.stats[0][1]}}</td>
+						<td class="has-text-light" style="text-align:center">{{user.stats[0][2]}}</td>
+						<td class="has-text-light" style="text-align:right">{{str(round(100 * user.stats[0][0] / sum(user.stats[0][p] for p in range(3)), 2)) + " %" if sum(user.stats[0][p] for p in range(3)) else "NaN"}}</td>
+					</tr>
 				</tbody>
 			</table>
 		</div>
@@ -51,7 +61,7 @@
 			<div class="control" style="width: 60%;">
 				<div style="float:left">
 				<p class=" has-text-light">
-					Način: {{"plus" if user.igre[i].plus else "klasičen"}}
+					Način: {{"plus" if user.igre[i].tezavnost == 0 else "klasičen"}}
 				</p>
 				<p class=" has-text-light">
 					Težavnost: {{user.igre[i].tezavnost}}
@@ -64,7 +74,9 @@
 			% end
 			% else:
 				<h2 class="subtitle has-text-light has-text-centered"><b>Nimate odprtih iger!</b></h2>
-				<a class="button is-link" href="/nastavitve">Nova igra</a>
+				<div class="buttons has-addons is-centered">
+					<a class="button is-link" href="/nastavitve">Nova igra</a>
+				</div>
 			</div>
 			% end
 		</div>

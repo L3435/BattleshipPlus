@@ -10,7 +10,7 @@ class User:
 		self.username = name
 		self.pwd = pwd
 		self.igre = dict({})
-		self.stats = {1 : [0, 0, 0], 2 : [0, 0, 0], 3 : [0, 0, 0], 4 : [0, 0, 0]}
+		self.stats = {0 : [0, 0, 0], 1 : [0, 0, 0], 2 : [0, 0, 0], 3 : [0, 0, 0]}
 
 	@staticmethod
 	def prijava(uporabnisko_ime: str, geslo_v_cistopisu: str) -> User:
@@ -105,10 +105,15 @@ class User:
 	def konec_igre(self, id: int) -> None:
 		"""Zaključi igro in shrani njen izid"""
 		igra = self.igre[id]
-		if igra.tezavnost in [1, 2, 3, 4]:
-			self.stats[igra.tezavnost][igra.Konec() - 1] += 1
 		stats = statistika.get_stats()
-		stats[self.username] = self.stats
+		if igra.tezavnost in [0, 1, 2, 3]:
+			self.stats[igra.tezavnost][igra.Konec() - 1] += 1
+			dif = "1" if igra.tezavnost else "0"
+			if igra.Konec() == 1:
+				stats["min_moves"][dif].append((self.username, igra.poteze))
+				stats["min_moves"][dif].sort(key=lambda p: p[1])
+				stats["min_moves"][dif] = stats["min_moves"][dif][:10]
+		stats["user_" + self.username] = self.stats
 		statistika.save_stats(stats)
 		for i in range(id, len(self.igre) - 1):
 			self.igre[i] = self.igre[i + 1]
