@@ -23,25 +23,55 @@
 					</tr>
 				</thead>
 				<tbody>
-					% for j, x in enumerate(sorted(statistika, key=lambda x: (-statistika[x]["4"][0],statistika[x]["4"][1]))):
-					% if j < 10 and statistika[x]["4"][0] > 0:
+					% stats = statistika.copy()
+					% stats.pop("min_moves")
+					% for j, x in enumerate(sorted(stats, key=lambda x: (-stats[x]["0"][0],stats[x]["0"][1]))):
+					% username = x[5:]
+					% if j < 10 and stats[x]["0"][0] > 0:
 					<tr>
 						<td class="has-text-light" style="text-align:right">{{j + 1}}.</td>
-						% if len(x) < 16:
-						<td class="has-text-light">{{x}}</td>
+						% if len(username) < 16:
+						<td class="has-text-light">{{username}}</td>
 						% else:
-						<td class="has-text-light"><abbr title={{x}}>{{x[:12] + "..."}}</abbr></td>
+						<td class="has-text-light"><abbr title={{username}}>{{username[:12] + "..."}}</abbr></td>
 						% end
-						<td class="has-text-light" style="text-align:right">{{statistika[x]["4"][0]}}</td>
-						<td class="has-text-light" style="text-align:right">{{statistika[x]["4"][1]}}</td>
-						<td class="has-text-light" style="text-align:right">{{statistika[x]["4"][2]}}</td>
-						<td class="has-text-light" style="text-align:right">{{str(round(100 * statistika[x]["4"][0] / sum(statistika[x]["4"][i] for i in range(3)), 2)) + " %" if sum(statistika[x]["4"][i] for i in range(3)) else "NaN"}}</td>
+						<td class="has-text-light" style="text-align:right">{{stats[x]["0"][0]}}</td>
+						<td class="has-text-light" style="text-align:right">{{stats[x]["0"][1]}}</td>
+						<td class="has-text-light" style="text-align:right">{{stats[x]["0"][2]}}</td>
+						<td class="has-text-light" style="text-align:right">{{str(round(100 * stats[x]["0"][0] / sum(stats[x]["0"][i] for i in range(3)), 2)) + " %" if sum(stats[x]["0"][i] for i in range(3)) else "NaN"}}</td>
 					</tr>
 					% end
 					% end
 				</tbody>
 			</table>
 		</div>
-		% end
 	</div>
+</section>
+
+<section class="section has-text-centered">
+	<h1 class="title">Najkrajše igre:</h1>
+	<table class="table has-background-dark is-centered">
+		<thead>
+			<tr>
+				<th class="has-text-light" style="text-align:center"><abbr title="Uvrstitev">Uvr</abbr></th>
+				<th class="has-text-light">Uporabnik</th>
+				<th class="has-text-light">Število potez</th>
+			</tr>
+		</thead>
+		<tbody>
+			% for i, (x, poteze) in enumerate(statistika["min_moves"]["0"]):
+			% if i < 10:
+			<tr>
+				<td class="has-text-light" style="text-align:right">{{i + 1}}.</td>
+				% if len(x) < 16:
+				<td class="has-text-light">{{x}}</td>
+				% else:
+				<td class="has-text-light"><abbr title={{x}}>{{x[:12] + "..."}}</abbr></td>
+				% end
+				<td class="has-text-light" style="text-align:right">{{poteze}}</td>
+			</tr>
+			% end
+			% end
+		</tbody>
+	</table>
 </section>
