@@ -8,6 +8,13 @@ import statistika
 USERNAME_COOKIE = "username"
 SECRET = "2 + 2 is 4 - 1 is 3 quickmaths"
 
+MAP = {
+	"Klasičen, težavnost 1" : 1,
+	"Klasičen, težavnost 2" : 2,
+	"Klasičen, težavnost 3" : 3,
+	"Plus" : 0
+}
+
 def trenutni_uporabnik():
     username = bottle.request.get_cookie(
         USERNAME_COOKIE, secret=SECRET
@@ -102,8 +109,9 @@ def trenutna(id):
 def sprememba_metode(id, metoda):
 	user = trenutni_uporabnik()
 	igra = user.igre[id]
-	if igra.tezavnost == 4 and igra.igralec2.metoda_dostopna(metoda):
-		igra.selected = metoda
+	if igra.tezavnost == 0 and igra.igralec2.metoda_dostopna(metoda):
+		if igra.selected == metoda: igra.selected = None
+		else: igra.selected = metoda
 		user.v_datoteko()
 	else:
 		igra.selected = None
@@ -117,7 +125,9 @@ def nastavitve():
 
 @bottle.post("/nastavitve")
 def nastavitve_post():
-	n = int(bottle.request.forms.getunicode('tezavnost'))
+	string = bottle.request.forms.getunicode('tezavnost')
+	if string in MAP: n = MAP[string]
+	else: n = -1
 	user = trenutni_uporabnik()
 	id = user.nova_igra(n)
 	user.v_datoteko()
