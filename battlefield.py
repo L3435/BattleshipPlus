@@ -466,19 +466,3 @@ class Polje:
 					 key=lambda p: -bigshot_verjetnosti[p[0] - 1][p[1] - 1])
 		for p in sez:
 			if self.radar[p[0]][p[1]] == ' ': return p
-
-	def OptimalTorpedo(self) -> tuple[int, int]:
-		verjetnosti = self.Optimal()
-		torpedo_verjetnosti = [
-			[
-				sum(verjetnosti[x][j] for j in range(10))
-				+
-				sum(verjetnosti[i][y] for i in range(10))
-				for y in range(1, 9)
-			]
-			for x in range(1, 9)
-		]
-		sez = sorted([(x, y) for x in range(1, 9) for y in range(1, 9)],
-					 key=lambda p: -torpedo_verjetnosti[p[0] - 1][p[1] - 1])
-		for p in sez:
-			if self.radar[p[0]][p[1]] == ' ': return p

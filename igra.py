@@ -12,7 +12,7 @@ MAP = {
 AI_MAP = {
 	"BigShot" : (battlefield.Polje.BigShot, battlefield.Polje.OptimalBigShot),
 	"MedShot" : (battlefield.Polje.MedShot, battlefield.Polje.OptimalMedShot),
-	"Torpedo" : (battlefield.Polje.Torpedo, battlefield.Polje.OptimalTorpedo)
+	"Torpedo" : (battlefield.Polje.Torpedo, battlefield.Polje.OptimalShot)
 }
 
 class Igra:
