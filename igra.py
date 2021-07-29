@@ -16,18 +16,22 @@ AI_MAP = {
 }
 
 class Igra:
-	def __init__(self, n: int, selected: str=None) -> None:
+	def __init__(self, n: int, selected: str=None, poteze: int=0) -> None:
 		self.igralec1 = battlefield.Polje()
 		self.igralec1.RandomSetup()
 		self.igralec2 = battlefield.Polje()
 		self.igralec2.RandomSetup()
 		self.tezavnost = n
 		self.selected = selected
+		self.poteze = poteze
 
 	def Konec(self) -> int:
 		"""Preveri, če je igra končana"""
-		if not self.igralec1.Poteka(): return 1
-		if not self.igralec2.Poteka(): return 2
+		P1 = self.igralec1
+		P2 = self.igralec2
+		if not P1.Poteka() and not P2.Poteka(): return 2
+		if not P1.Poteka(): return 1
+		if not P2.Poteka(): return 3
 		return 0
 
 	def v_slovar(self) -> dict:
@@ -35,6 +39,7 @@ class Igra:
 		return {
 			"tezavnost" : self.tezavnost,
 			"selected" : self.selected,
+			"poteze" : self.poteze,
 			"P1" : self.igralec1.v_slovar(),
 			"P2" : self.igralec2.v_slovar(),
 		}
@@ -42,7 +47,7 @@ class Igra:
 	@staticmethod
 	def iz_slovarja(slovar: dict) -> Igra:
 		"""Iz zapisa v slovarju vrne igro"""
-		X = Igra(int(slovar["tezavnost"]), slovar["selected"])
+		X = Igra(int(slovar["tezavnost"]), slovar["selected"], slovar["poteze"])
 		X.igralec1 = battlefield.Polje.iz_slovarja(slovar["P1"])
 		X.igralec2 = battlefield.Polje.iz_slovarja(slovar["P2"])
 		return X
@@ -50,7 +55,7 @@ class Igra:
 	def AI_Poteza(self) -> None:
 		P1 = self.igralec1
 		P2 = self.igralec2
-		if self.tezavnost == 4:
+		if self.tezavnost == 0:
 			for metoda in AI_MAP:
 				if P1.metoda_dostopna(metoda):
 					AI_MAP[metoda][0](P2, *AI_MAP[metoda][1](P2))
@@ -87,6 +92,7 @@ class Igra:
 		if self.selected:
 			P2.ladja_z_metodo(self.selected).counter = 0
 		self.selected = None
+		self.poteze += 1
 		self.AI_Poteza()
 
 	def Stevec(self):
