@@ -90,7 +90,9 @@ def trenutna(id):
 	if bottle.request.query.x:
 		x = int(bottle.request.query.x)
 		y = int(bottle.request.query.y)
-		try: igra.Poteza(x, y)
+		try:
+			igra.Poteza(x, y)
+			igra.Stevec()
 		except AlreadyShot: pass
 		if igra.Konec(): user.konec_igre(id)
 		user.v_datoteko()
@@ -100,8 +102,11 @@ def trenutna(id):
 def sprememba_metode(id, metoda):
 	user = trenutni_uporabnik()
 	igra = user.igre[id]
-	if igra.plus and igra.igralec2.metoda_dostopna(metoda):
+	if igra.tezavnost == 4 and igra.igralec2.metoda_dostopna(metoda):
 		igra.selected = metoda
+		user.v_datoteko()
+	else:
+		igra.selected = None
 		user.v_datoteko()
 	bottle.redirect(f"/igra/{id}")
 

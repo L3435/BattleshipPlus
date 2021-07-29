@@ -55,20 +55,19 @@ KLASIKA = {
 			"B" : Ladja(4, "B", "MedShot"),
 			"C" : Ladja(3, "C", "Torpedo"),
 			"D" : Ladja(3, "D", "Cluster"),
-			"E" : Ladja(2, "E", "Radar")
+			"E" : Ladja(2, "E", None)
 		}
 
 class Polje:
 	"""Razred z metodami za pripravo igralnega polja"""
 
-	def __init__(self, mornarica: dict=KLASIKA, plus: bool=False) -> None:
+	def __init__(self, mornarica: dict=KLASIKA) -> None:
 		self.polje = [ ['x'] * 20 for _ in range(20)]
 		for x, y in self:
 			self.polje[x + 5][y + 5] = ' '
 		self.mornarica = mornarica.copy()
 		self.ladje = len(self.mornarica)
 		self.radar = [ [' '] * 10 for _ in range(10)]
-		self.plus = plus
 
 	def __str__(self) -> str:
 		"""Izpiše trenutno stanje polja"""
@@ -132,6 +131,7 @@ class Polje:
 
 	def Reveal(self, x: int, y: int) -> None:
 		"""Prikaže izid streljanja polja (x, y) na radarju"""
+		if self.radar[x][y] != ' ': return
 		self.radar[x][y] = '.' if self.polje[x + 5][y + 5] == ' ' else 'x'
 
 	def Shoot(self, x: int, y: int) -> None:
@@ -178,12 +178,10 @@ class Polje:
 		for _ in range(10):
 			target.append((x, y))
 			if self.polje[x + 5][y + 5] != ' ' and self.radar[x][y] not in 'xP':
-				break
+				self.Shoot(x, y)
+				return
+			self.Reveal(x, y)
 			x, y = x + i, y + j
-		self.ShootRange(0, 0, target)
-
-	def Radar(self, x: int, y: int):
-		pass
 	
 	def Sink(self, ladja: Ladja) -> None:
 		"""Označi ladjo kot potopljeno"""
@@ -331,7 +329,7 @@ class Polje:
 		return postavitve
 
 	def MonteCarlo(self, t: float=3) -> tuple[int, int]:
-		"""Z naključnimi postavitvami oceni najverjetnejšo lokacijo ladij"""
+		"""Z naključnimi postavitvami oceni verjetnosti lokacij ladij"""
 		start = time.time()
 		verjetnosti = [ [0] * 10 for _ in range(10)]
 		postavitve = self.MoznePostavitve()
@@ -351,13 +349,10 @@ class Polje:
 				continue
 			if not self.PrestejLadje(simulacija, verjetnosti):
 				continue
-		list = sorted([(x, y) for x, y in self],
-			key=lambda p: -verjetnosti[p[0]][p[1]])
-		for p in list:
-			if self.radar[p[0]][p[1]] == ' ': return p
+		return verjetnosti
 
 	def PrestejLadje(self, simulacija: Polje,
-			tabela: list[list[int]]) -> tuple[int, int]:
+			tabela: list[list[int]]) -> bool:
 		"""Preveri, na katerih poljih so ladje in to zapiše v tabelo"""
 		if any(simulacija.polje[x + 5][y + 5] == ' ' and
 			   self.radar[x][y] == 'x' for x, y in self):
@@ -408,8 +403,8 @@ class Polje:
 						continue
 			simulacija.mornarica[ship.id] = ship
 
-	def Optimal(self, t: float=1) -> tuple[int, int]:
-		"""Metoda, ki vrne polje, na katerem je najbolj verjetno ladja"""
+	def Optimal(self, t: float=1) -> list[list[int]]:
+		"""Metoda, ki vrne porazdelitev verjetnosti"""
 		start = time.time()
 		verjetnosti = [ [0] * 10 for _ in range(10)]
 		simulacija = Polje()
@@ -422,8 +417,66 @@ class Polje:
 		else:
 			self.RekurzivnoPostavljanje(0, simulacija, verjetnosti, start, t)
 		if time.time() - start > t:
-			return self.MonteCarlo()
+			verjetnosti = self.MonteCarlo()
+		for x, y in self:
+			if self.radar[x][y] != ' ':
+				verjetnosti[x][y] = 0
+		return verjetnosti
+
+	def OptimalShot(self, verjetnosti: list[list[int]]=None) -> tuple[int, int]:
+		if verjetnosti == None: verjetnosti = self.Optimal()
+		if all(verjetnosti[x][y] == 0 for x, y in self):
+			return self.SrednjiAI()
 		sez = sorted([(x, y) for x, y in self],
 					 key=lambda p: -verjetnosti[p[0]][p[1]])
+		for p in sez:
+			if self.radar[p[0]][p[1]] == ' ': return p
+
+	def OptimalMedShot(self) -> tuple[int, int]:
+		verjetnosti = self.Optimal()
+		medshot_verjetnosti = [
+			[
+				sum(
+					verjetnosti[x + i][y + j]
+					for i, j in MEDIUM if x + i in range(10) and y + j in range(10))
+				for x in range(10)
+			]
+			for y in range(10)
+		]
+		sez = sorted([(x, y) for x, y in self],
+					 key=lambda p: -medshot_verjetnosti[p[0]][p[1]])
+		for p in sez:
+			if self.radar[p[0]][p[1]] == ' ': return p
+
+	def OptimalBigShot(self, verjetnosti: list[list[int]]=None) -> tuple[int, int]:
+		if verjetnosti == None: verjetnosti = self.Optimal()
+		bigshot_verjetnosti = [
+			[
+				sum(
+					verjetnosti[x + i][y + j]
+					for i in range(-1, 2)
+					for j in range(-1, 2))
+				for x in range(1, 9)
+			]
+			for y in range(1, 9)
+		]
+		sez = sorted([(x, y) for x in range(1, 9) for y in range(1, 9)],
+					 key=lambda p: -bigshot_verjetnosti[p[0] - 1][p[1] - 1])
+		for p in sez:
+			if self.radar[p[0]][p[1]] == ' ': return p
+
+	def OptimalTorpedo(self) -> tuple[int, int]:
+		verjetnosti = self.Optimal()
+		torpedo_verjetnosti = [
+			[
+				sum(verjetnosti[x][j] for j in range(10))
+				+
+				sum(verjetnosti[i][y] for i in range(10))
+				for x in range(1, 9)
+			]
+			for y in range(1, 9)
+		]
+		sez = sorted([(x, y) for x in range(1, 9) for y in range(1, 9)],
+					 key=lambda p: -torpedo_verjetnosti[p[0] - 1][p[1] - 1])
 		for p in sez:
 			if self.radar[p[0]][p[1]] == ' ': return p
