@@ -73,9 +73,10 @@
 				</tr>
 				% end
 			</table>
-			% if igra.plus:
+			% if igra.tezavnost == 4 and not igra.Konec():
 			<div class="buttons is-centered">
 				% for ship in igra.igralec2.mornarica.values():
+				% if ship.metoda and ship.nezadeta == ship.dolzina:
 				% if ship.special() and not ship.metoda == igra.selected:
 				<a class="button is-info" href="/igra/{{id}}/{{ship.metoda}}">{{ship.metoda + f" ({ship.counter}/{8 - ship.dolzina})"}}</a>
 				% else:
@@ -84,6 +85,7 @@
 				% end
 				% end
 			</div>
+			% end
 		</div>
 		<div class="column">
 			<table class="table is-bordered">

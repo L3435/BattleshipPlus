@@ -127,6 +127,10 @@ def nastavitve_post():
 def lestvice():
 	return bottle.template("lestvice.html", user=trenutni_uporabnik(), statistika = statistika.get_stats())
 
+@bottle.get("/lestvice_plus")
+def lestvice():
+	return bottle.template("lestvice_plus.html", user=trenutni_uporabnik(), statistika = statistika.get_stats())
+
 @bottle.get("/img/<picture>")
 def slike(picture):
 	return bottle.static_file(picture, "img")

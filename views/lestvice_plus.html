@@ -9,9 +9,8 @@
 
 <section class="section">
 	<div class="columns">
-		% for i in range(1, 4):
 		<div class="column">
-			<h1 class="title has-text-centered has-text-light">Težavnost {{i}}</h1>
+			<h1 class="title has-text-centered has-text-light">Način Plus</h1>
 			<table class="table has-background-dark is-centered">
 				<thead>
 					<tr>
@@ -24,8 +23,8 @@
 					</tr>
 				</thead>
 				<tbody>
-					% for j, x in enumerate(sorted(statistika, key=lambda x: (-statistika[x][str(i)][0],statistika[x][str(i)][1]))):
-					% if j < 10 and statistika[x][str(i)][0] > 0:
+					% for j, x in enumerate(sorted(statistika, key=lambda x: (-statistika[x]["4"][0],statistika[x]["4"][1]))):
+					% if j < 10 and statistika[x]["4"][0] > 0:
 					<tr>
 						<td class="has-text-light" style="text-align:right">{{j + 1}}.</td>
 						% if len(x) < 16:
@@ -33,10 +32,10 @@
 						% else:
 						<td class="has-text-light"><abbr title={{x}}>{{x[:12] + "..."}}</abbr></td>
 						% end
-						<td class="has-text-light" style="text-align:right">{{statistika[x][str(i)][0]}}</td>
-						<td class="has-text-light" style="text-align:right">{{statistika[x][str(i)][1]}}</td>
-						<td class="has-text-light" style="text-align:right">{{statistika[x][str(i)][2]}}</td>
-						<td class="has-text-light" style="text-align:right">{{str(round(100 * statistika[x][str(i)][0] / sum(statistika[x][str(i)][p] for p in range(3)), 2)) + " %" if sum(statistika[x][str(i)][p] for p in range(3)) else "NaN"}}</td>
+						<td class="has-text-light" style="text-align:right">{{statistika[x]["4"][0]}}</td>
+						<td class="has-text-light" style="text-align:right">{{statistika[x]["4"][1]}}</td>
+						<td class="has-text-light" style="text-align:right">{{statistika[x]["4"][2]}}</td>
+						<td class="has-text-light" style="text-align:right">{{str(round(100 * statistika[x]["4"][0] / sum(statistika[x]["4"][i] for i in range(3)), 2)) + " %" if sum(statistika[x]["4"][i] for i in range(3)) else "NaN"}}</td>
 					</tr>
 					% end
 					% end
