@@ -322,7 +322,9 @@ class Polje:
 				for r in range(2):
 					try:
 						simulacija.SetShip(ship, x, y, r)
-						postavitve[ship].append((x,y,r))
+						if any(self.radar[x + r * i][y + i - r * i] != 'x'
+							for i in range(ship.dolzina)):
+							postavitve[ship].append((x,y,r))
 						simulacija.RemoveShip(ship, x, y, r)
 					except CellTaken:
 						continue
@@ -439,9 +441,9 @@ class Polje:
 				sum(
 					verjetnosti[x + i][y + j]
 					for i, j in MEDIUM if x + i in range(10) and y + j in range(10))
-				for x in range(10)
+				for y in range(10)
 			]
-			for y in range(10)
+			for x in range(10)
 		]
 		sez = sorted([(x, y) for x, y in self],
 					 key=lambda p: -medshot_verjetnosti[p[0]][p[1]])
@@ -456,9 +458,9 @@ class Polje:
 					verjetnosti[x + i][y + j]
 					for i in range(-1, 2)
 					for j in range(-1, 2))
-				for x in range(1, 9)
+				for y in range(1, 9)
 			]
-			for y in range(1, 9)
+			for x in range(1, 9)
 		]
 		sez = sorted([(x, y) for x in range(1, 9) for y in range(1, 9)],
 					 key=lambda p: -bigshot_verjetnosti[p[0] - 1][p[1] - 1])
@@ -472,9 +474,9 @@ class Polje:
 				sum(verjetnosti[x][j] for j in range(10))
 				+
 				sum(verjetnosti[i][y] for i in range(10))
-				for x in range(1, 9)
+				for y in range(1, 9)
 			]
-			for y in range(1, 9)
+			for x in range(1, 9)
 		]
 		sez = sorted([(x, y) for x in range(1, 9) for y in range(1, 9)],
 					 key=lambda p: -torpedo_verjetnosti[p[0] - 1][p[1] - 1])
