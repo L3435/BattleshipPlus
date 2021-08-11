@@ -61,11 +61,18 @@ KLASIKA = {
 class Polje:
 	"""Razred z metodami za pripravo igralnega polja"""
 
-	def __init__(self, mornarica: dict=KLASIKA) -> None:
+	def __init__(self, mornarica: dict=None) -> None:
 		self.polje = [ ['x'] * 20 for _ in range(20)]
 		for x, y in self:
 			self.polje[x + 5][y + 5] = ' '
-		self.mornarica = mornarica.copy()
+		if mornarica: self.mornarica = mornarica
+		else: self.mornarica = {
+			"A" : Ladja(5, "A", "BigShot"),
+			"B" : Ladja(4, "B", "MedShot"),
+			"C" : Ladja(3, "C", "Torpedo"),
+			"D" : Ladja(3, "D", "Cluster"),
+			"E" : Ladja(2, "E", None)
+		}
 		self.ladje = len(self.mornarica)
 		self.radar = [ [' '] * 10 for _ in range(10)]
 
@@ -75,17 +82,7 @@ class Polje:
 			for x in range(10)) for y in range(10)])
 
 	def __iter__(self):
-		self.iterx = 0
-		self.itery = -1
-		return self
-
-	def __next__(self):
-		self.itery += 1
-		if self.itery > 9:
-			self.itery = 0
-			self.iterx += 1
-		if self.iterx > 9: raise StopIteration
-		return (self.iterx, self.itery)
+		return iter((x, y) for x in range(10) for y in range(10))
 
 	def SetShip(self, ship: Ladja, x: int, y: int, r: int) -> None:
 		"""Na polje (x, y) postavi ladjo ship z rotacijo r"""
@@ -445,6 +442,9 @@ class Polje:
 			]
 			for x in range(10)
 		]
+		for x, y in self:
+			if self.radar[x][y] != ' ':
+				medshot_verjetnosti[x][y] = 0
 		sez = sorted([(x, y) for x, y in self],
 					 key=lambda p: -medshot_verjetnosti[p[0]][p[1]])
 		for p in sez:
@@ -455,14 +455,16 @@ class Polje:
 		bigshot_verjetnosti = [
 			[
 				sum(
-					verjetnosti[x + i][y + j]
-					for i in range(-1, 2)
-					for j in range(-1, 2))
-				for y in range(1, 9)
+					verjetnosti[x + i][y + j]	
+					for i, j in BIG if x + i in range(10) and y + j in range(10))
+				for y in range(10)
 			]
-			for x in range(1, 9)
+			for x in range(10)
 		]
+		for x, y in self:
+			if self.radar[x][y] != ' ':
+				bigshot_verjetnosti[x][y] = 0
 		sez = sorted([(x, y) for x in range(1, 9) for y in range(1, 9)],
-					 key=lambda p: -bigshot_verjetnosti[p[0] - 1][p[1] - 1])
+					 key=lambda p: -bigshot_verjetnosti[p[0]][p[1]])
 		for p in sez:
 			if self.radar[p[0]][p[1]] == ' ': return p
