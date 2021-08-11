@@ -12,10 +12,13 @@
 	}
 </style>
 
-<section class="section">
-	<div class="container" style="width: 350px; max-width: 90%;">
-		<h1 class="title has-text-light">Pozdravljen, {{user.username}}!</h1>
+<section class="section has-text-centered">
+	<h1 class="title has-text-light">Pozdravljen, {{user.username}}!</h1>
+	% if len(user.igre) >= 5:
+	<div class="block has-text-danger">
+		<i class="fas fa-exclamation-triangle"></i> Dosegli ste največje možno število iger. Pred začetkom naslednje zaključite eno izmed že začetih.
 	</div>
+	% end
 </section>
 <section class="section">
 	<div class="columns">
@@ -58,13 +61,14 @@
 		% if user.igre:
 			<h2 class="subtitle has-text-light has-text-centered"><b>Odprte igre:</b></h2>
 			% for i in user.igre:
+			% dif = user.igre[i].tezavnost
 			<div class="control" style="width: 60%;">
 				<div style="float:left">
 				<p class=" has-text-light">
-					Način: {{"plus" if user.igre[i].tezavnost == 0 else "klasičen"}}
+					Način: {{"plus" if dif == 0 else "klasičen"}}
 				</p>
 				<p class=" has-text-light">
-					Težavnost: {{user.igre[i].tezavnost}}
+					Težavnost: {{ dif if dif else "/" }}
 				</p>
 				</div>
 				<div style="float:right; display: flex; align-items: center;">
