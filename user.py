@@ -10,7 +10,6 @@ class User:
 		self.username = name
 		self.pwd = pwd
 		self.igre = dict({})
-		self.stats = {0 : [0, 0, 0], 1 : [0, 0, 0], 2 : [0, 0, 0], 3 : [0, 0, 0]}
 
 	@staticmethod
 	def prijava(uporabnisko_ime: str, geslo_v_cistopisu: str) -> User:
@@ -49,8 +48,7 @@ class User:
 		return {
 			"username": self.username,
 			"pwd": self.pwd,
-			"igre": {id : self.igre[id].v_slovar() for id in self.igre},
-			"stats": self.stats
+			"igre": {id : self.igre[id].v_slovar() for id in self.igre}
 		}
 
 	def v_datoteko(self) -> None:
@@ -71,6 +69,10 @@ class User:
 		# Windows ne dovoli uporabe določenih imen za datoteke,
 		# kar obidemo s predpono "user_"
 
+	def StatsName(self) -> str:
+		"""Vrne niz, ki določa statistiko uporabnika v slovarju"""
+		return f"stats_{self.username}"
+
 	@staticmethod
 	def iz_slovarja(slovar: dict) -> User:
 		"""Iz slovarja prebere uporabnika"""
@@ -79,7 +81,6 @@ class User:
 		user = User(username, pwd)
 		user.igre = {int(id) : igra.Igra.iz_slovarja(slovar["igre"][id])
 			for id in slovar["igre"]}
-		user.stats = {int(n) : slovar["stats"][n] for n in slovar["stats"]}
 		return user
 
 	@staticmethod
@@ -107,13 +108,12 @@ class User:
 		igra = self.igre[id]
 		stats = statistika.get_stats()
 		if igra.tezavnost in [0, 1, 2, 3]:
-			self.stats[igra.tezavnost][igra.Konec() - 1] += 1
+			stats[self.StatsName()][str(igra.tezavnost)][igra.Konec() - 1] += 1
 			dif = "1" if igra.tezavnost else "0"
 			if igra.Konec() == 1:
 				stats["min_moves"][dif].append((self.username, igra.poteze))
 				stats["min_moves"][dif].sort(key=lambda p: p[1])
 				stats["min_moves"][dif] = stats["min_moves"][dif][:10]
-		stats["user_" + self.username] = self.stats
 		statistika.save_stats(stats)
 		for i in range(id, len(self.igre) - 1):
 			self.igre[i] = self.igre[i + 1]

@@ -103,7 +103,7 @@ def odjava():
 def profil():
     if trenutni_uporabnik() == None:
         bottle.redirect("/")
-    return bottle.template("profil.html", user=trenutni_uporabnik())
+    return bottle.template("profil.html", user=trenutni_uporabnik(), statistika=statistika.get_stats())
 
 
 @bottle.get("/igra/<id:int>")
