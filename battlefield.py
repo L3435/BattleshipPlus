@@ -184,15 +184,15 @@ class Polje:
                 continue
 
     def strel_plus(self, x: int, y: int) -> None:
-        """Zadane 5 celic v okolici (x,y) v obliki +."""
+        """Zadene 5 celic v okolici (x,y) v obliki +."""
         self.multistrel(x, y, MEDIUM)
 
     def velik_strel(self, x: int, y: int) -> None:
-        """Zadane 9 celic v okolici (x,y)."""
+        """Zadene 9 celic v okolici (x,y)."""
         self.multistrel(x, y, BIG)
 
     def trojni_strel(self, x: int, y: int) -> None:
-        """Zadane tri naključne celice v okolici (x,y)."""
+        """Zadene tri naključne celice v okolici (x,y)."""
         target = BIG.copy()
         random.shuffle(target)
         self.multistrel(x, y, target[:3])
