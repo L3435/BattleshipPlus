@@ -8,463 +8,571 @@ import time
 MEDIUM = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)]
 BIG = [(i, j) for i in range(-1, 2) for j in range(-1, 2)]
 
+
 class Ladja:
-	"""Razred, ki vsebuje vse podatke o ladjah"""
+    """Razred, ki vsebuje vse podatke o ladjah.
 
-	def __init__(self, n: int, id: int, metoda: str) -> None:
-		self.dolzina = n
-		self.id = id
-		self.nezadeta = n
-		self.potopljena = False
-		self.metoda = metoda
-		self.counter = 5 - self.dolzina
-		
-	def __str__(self) -> str:
-		"""Izpiše id ladje"""
-		return str(self.id)
+    dolzina:    Število polj, ki jih ladja zaseda.
+    id:         Identifikacijska črka ladje.
+    nezadeta:   Število polj ladje, ki še niso bila zadeta.
+    potopljena: Če je ladja potopljena, se ta atribut nastavi na True.
+    metoda:     Poseben strel ladje (dostopen v načinu Plus).
+    stevec:     Število potez od zadnje uporabe posebnega strela."""
 
-	def zadeta(self) -> None:
-		"""Zmanjša število polj in preveri, če je potopljena"""
-		self.nezadeta -= 1
-		if not self.nezadeta:
-			self.potopljena = True
+    def __init__(self, dolzina: int, id: str, metoda: str) -> None:
+        self.dolzina = dolzina
+        self.id = id
+        self.nezadeta = dolzina
+        self.potopljena = False
+        self.metoda = metoda
+        self.stevec = 5 - self.dolzina
 
-	def special(self):
-		return self.dolzina == self.nezadeta and self.counter == 5
+    def __str__(self) -> str:
+        """Izpiše id ladje."""
+        return self.id
 
-	def v_slovar(self) -> dict:
-		return {
-			"l" : self.dolzina,
-			"id" : self.id,
-			"nezadeta" : self.nezadeta,
-			"potopljena" : self.potopljena,
-			"metoda" : self.metoda,
-			"counter" : self.counter
-		}
+    def zadeta(self) -> None:
+        """Zmanjša število nezadetih polj in preveri, če je potopljena."""
+        self.nezadeta -= 1
+        if not self.nezadeta:
+            self.potopljena = True
 
-	@staticmethod
-	def iz_slovarja(slovar: dict) -> Ladja:
-		X = Ladja(int(slovar["l"]), slovar["id"], slovar["metoda"])
-		X.nezadeta = int(slovar["nezadeta"])
-		X.potopljena = slovar["potopljena"]
-		X.counter = int(slovar["counter"])
-		return X
+    def special(self) -> bool:
+        """Preveri, če je poseben strel dostopen."""
+        return self.dolzina == self.nezadeta and self.stevec == 5
 
-KLASIKA = {
-			"A" : Ladja(5, "A", "BigShot"),
-			"B" : Ladja(4, "B", "MedShot"),
-			"C" : Ladja(3, "C", "Torpedo"),
-			"D" : Ladja(3, "D", "Cluster"),
-			"E" : Ladja(2, "E", None)
-		}
+    def v_slovar(self) -> dict:
+        """Ladjo pretvori v slovar, ki ga lahko shranimo v datoteko."""
+        return {
+            "l": self.dolzina,
+            "id": self.id,
+            "nezadeta": self.nezadeta,
+            "potopljena": self.potopljena,
+            "metoda": self.metoda,
+            "counter": self.stevec
+        }
+
+    @staticmethod
+    def iz_slovarja(slovar: dict) -> Ladja:
+        """Iz slovarja prebere in vrne ladjo."""
+        X = Ladja(int(slovar["l"]), slovar["id"], slovar["metoda"])
+        X.nezadeta = int(slovar["nezadeta"])
+        X.potopljena = slovar["potopljena"]
+        X.stevec = int(slovar["counter"])
+        return X
+
 
 class Polje:
-	"""Razred z metodami za pripravo igralnega polja"""
+    """Razred z metodami za pripravo igralnega polja.
 
-	def __init__(self, mornarica: dict=None) -> None:
-		self.polje = [ ['x'] * 20 for _ in range(20)]
-		for x, y in self:
-			self.polje[x + 5][y + 5] = ' '
-		if mornarica: self.mornarica = mornarica
-		else: self.mornarica = {
-			"A" : Ladja(5, "A", "BigShot"),
-			"B" : Ladja(4, "B", "MedShot"),
-			"C" : Ladja(3, "C", "Torpedo"),
-			"D" : Ladja(3, "D", "Cluster"),
-			"E" : Ladja(2, "E", None)
-		}
-		self.ladje = len(self.mornarica)
-		self.radar = [ [' '] * 10 for _ in range(10)]
+    polje: Tabela z lokacijami ladij.
+    flota: Slovar ladij, ki še niso bile potopljene.
+    ladje: Število nepotopljenih ladij.
+    radar: Polje, ki ga vidi nasprotni igralec."""
 
-	def __str__(self) -> str:
-		"""Izpiše trenutno stanje polja"""
-		return '\n'.join([' '.join(str(self.radar[x][y])
-			for x in range(10)) for y in range(10)])
+    def __init__(self, flota: dict = None) -> None:
+        self.polje = [['x'] * 20 for _ in range(20)]
+        for x, y in self:
+            self.polje[x + 5][y + 5] = ' '
+        if flota:
+            self.flota = flota
+        else:
+            self.flota = {
+                "A": Ladja(5, "A", "BigShot"),
+                "B": Ladja(4, "B", "MedShot"),
+                "C": Ladja(3, "C", "Torpedo"),
+                "D": Ladja(3, "D", "Cluster"),
+                "E": Ladja(2, "E", None)
+            }
+        self.ladje = len(self.flota)
+        self.radar = [[' '] * 10 for _ in range(10)]
 
-	def __iter__(self):
-		return iter((x, y) for x in range(10) for y in range(10))
+    def __str__(self) -> str:
+        """Izpiše trenutno stanje polja."""
+        return '\n'.join([' '.join(str(self.radar[x][y])
+                          for x in range(10)) for y in range(10)])
 
-	def SetShip(self, ship: Ladja, x: int, y: int, r: int) -> None:
-		"""Na polje (x, y) postavi ladjo ship z rotacijo r"""
-		if any(self.polje[x + 5 + r * i][y + 5 + i - r * i] != ' '
-			for i in range(ship.dolzina)):
-			raise CellTaken
-		for i in range(ship.dolzina):
-			self.polje[x + 5 + r * i][y + 5 + i - r * i] = ship.id
+    def __iter__(self):
+        """Iterator po koordinatah radarja."""
+        return iter((x, y) for x in range(10) for y in range(10))
 
-	def RemoveShip(self, ship: Ladja, x: int, y: int, r: int) -> None:
-		"""S polja odstrani ladjo"""
-		for i in range(ship.dolzina):
-			self.polje[x + 5 + r * i][y + 5 + i - r * i] = ' '
-	
-	def ClearField(self) -> None:
-		"""Počisti polje"""
-		for x, y in self: self.polje[x + 5][y + 5] = ' '
+    def postavi_ladjo(self, ladja: Ladja, x: int, y: int, r: int) -> None:
+        """Na polje postavi ladjo.
 
-	def RandomSetup(self) -> None:
-		"""Na polje naključno postavi ladje"""
-		while True:
-			try:
-				for ladja in self.mornarica.values():
-					self.SetShip(ladja,
-						random.randint(1, 10),
-						random.randint(1, 10),
-						random.randint(0, 1))
-				break
-			except CellTaken:
-				self.ClearField()
+        x, y:  Koordinati izhodišča ladje.
+        ladja: Ladja, ki jo postavljamo na polje.
+        r:     Orientacija ladje (0 za vertikalno, 1 za horizontalno)."""
+        if any(self.polje[x + 5 + r * i][y + 5 + i - r * i] != ' '
+                for i in range(ladja.dolzina)):
+            raise CellTaken
+        for i in range(ladja.dolzina):
+            self.polje[x + 5 + r * i][y + 5 + i - r * i] = ladja.id
 
-	def ladja_z_metodo(self, metoda: str) -> Ladja:
-		"""Poišče ladjo s posebno metodo streljanja"""
-		for ship in self.mornarica.values():
-			if ship.metoda == metoda:
-				return ship
+    def odstrani_ladjo(self, ladja: Ladja, x: int, y: int, r: int) -> None:
+        """S polja odstrani ladjo.
 
-	def metoda_dostopna(self, metoda: str) -> bool:
-		"""Preveri, ali lahko streljamo z izbrano metodo"""
-		ladja = self.ladja_z_metodo(metoda)
-		if ladja == None: return False
-		return ladja.special()
+        x, y:  Koordinati izhodišča ladje.
+        ladja: Ladja, ki jo odstranjujemo s polja.
+        r:     Orientacija ladje (0 za vertikalno, 1 za horizontalno)."""
+        for i in range(ladja.dolzina):
+            self.polje[x + 5 + r * i][y + 5 + i - r * i] = ' '
 
-	def Reveal(self, x: int, y: int) -> None:
-		"""Prikaže izid streljanja polja (x, y) na radarju"""
-		if self.radar[x][y] != ' ': return
-		self.radar[x][y] = '.' if self.polje[x + 5][y + 5] == ' ' else 'x'
+    def clear_field(self) -> None:
+        """Počisti vse ladje s polja."""
+        for x, y in self:
+            self.polje[x + 5][y + 5] = ' '
 
-	def Shoot(self, x: int, y: int) -> None:
-		"""Osnovni strel v polje (x, y)"""
-		if self.radar[x][y] in '.xP': raise AlreadyShot
-		self.Reveal(x, y)
-		if self.radar[x][y] == 'x':
-			ladja = self.mornarica[self.polje[x + 5][y + 5]]
-			ladja.zadeta()
-			if ladja.potopljena:
-				self.Sink(ladja)
+    def random_setup(self) -> None:
+        """Na polje naključno postavi ladje."""
+        while True:
+            try:
+                for ladja in self.flota.values():
+                    self.postavi_ladjo(
+                        ladja,
+                        random.randint(1, 10),
+                        random.randint(1, 10),
+                        random.randint(0, 1))
+                break
+            except CellTaken:
+                self.clear_field()
 
-	def ShootRange(self, x: int, y: int, target: list[tuple[int, int]]) -> None:
-		"""Strelja vsa polja v določeni obliki"""
-		for i, j in target:
-			try:
-				if x + i < 0 or y + j < 0: raise IndexError
-				self.Shoot(x + i, y + j)
-			except AlreadyShot: continue
-			except IndexError: continue
-	
-	def MedShot(self, x: int, y: int) -> None:
-		"""Zadane 5 polj v okolici tarče"""
-		self.ShootRange(x, y, MEDIUM)
-	
-	def BigShot(self, x: int, y: int) -> None:
-		"""Zadane 9 polj v okolici tarče"""
-		self.ShootRange(x, y, BIG)
+    def ladja_z_metodo(self, metoda: str) -> Ladja:
+        """Poišče ladjo s posebno metodo streljanja."""
+        for ladja in self.flota.values():
+            if ladja.metoda == metoda:
+                return ladja
 
-	def Cluster(self, x: int, y: int) -> None:
-		"""Zadane tri naključna polja v okolici tarče"""
-		target = BIG.copy()
-		random.shuffle(target)
-		self.ShootRange(x, y, target[:3])
+    def metoda_dostopna(self, metoda: str) -> bool:
+        """Preveri, ali lahko streljamo z izbrano metodo."""
+        ladja = self.ladja_z_metodo(metoda)
+        if ladja == None:
+            return False
+        return ladja.special()
 
-	def Torpedo(self, x: int, y: int) -> None:
-		"""Po polju pošlje torpedo"""
-		smer = int(random.random() * 4)
-		smeri = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-		start = [(0, y), (9, y), (x, 0), (x, 9)]
-		x, y = start[smer]
-		i, j = smeri[smer]
-		target = []
-		for _ in range(10):
-			target.append((x, y))
-			if self.polje[x + 5][y + 5] != ' ' and self.radar[x][y] not in 'xP':
-				self.Shoot(x, y)
-				return
-			self.Reveal(x, y)
-			x, y = x + i, y + j
-	
-	def Sink(self, ladja: Ladja) -> None:
-		"""Označi ladjo kot potopljeno"""
-		self.ladje -= 1
-		self.mornarica.pop(ladja.id)
-		for x, y in self:
-			if self.polje[x + 5][y + 5] == ladja.id:
-				self.radar[x][y] = 'P'
+    def odkrij(self, x: int, y: int) -> None:
+        """Prikaže izid streljanja celice (x,y) na radarju."""
+        if self.radar[x][y] != ' ':
+            return
+        self.radar[x][y] = '.' if self.polje[x + 5][y + 5] == ' ' else 'x'
 
-	def Poteka(self) -> bool:
-		"""Če je igra že končana, vrne False, drugače True"""
-		return self.ladje > 0
+    def strel(self, x: int, y: int) -> None:
+        """Strelja in odkrije celico (x,y)."""
+        if self.radar[x][y] in '.xP':
+            raise AlreadyShot
+        self.odkrij(x, y)
+        if self.radar[x][y] == 'x':
+            ladja = self.flota[self.polje[x + 5][y + 5]]
+            ladja.zadeta()
+            if ladja.potopljena:
+                self.potopi(ladja)
 
-	def v_slovar(self) -> dict:
-		return {
-			"polje" : [
-				[self.polje[x + 5][y + 5] for y in range(10)]
-				for x in range(10)
-			],
-			"radar" : [
-				[self.radar[x][y] for y in range(10)] for x in range(10)
-			],
-			"mornarica" : { id : self.mornarica[id].v_slovar()
-							for id in self.mornarica }
-		}
+    def multistrel(
+        self,
+        x: int,
+        y: int,
+        tarca: list[tuple[int, int]]
+    ) -> None:
+        """Strelja vse celice, določena z izhodiščem (x,y) in tarčo."""
+        for i, j in tarca:
+            try:
+                if x + i < 0 or y + j < 0 or x + i > 9 or y + j > 9:
+                    raise IndexError
+                self.strel(x + i, y + j)
+            except AlreadyShot:
+                continue
+            except IndexError:
+                continue
 
-	@staticmethod
-	def iz_slovarja(slovar: dict) -> Polje:
-		X = Polje()
-		for x, y in X:
-			X.polje[x + 5][y + 5] = slovar["polje"][x][y]
-		for x, y in X:
-			X.radar[x][y] = slovar["radar"][x][y]
-		X.mornarica = {id : Ladja.iz_slovarja(slovar["mornarica"][id])
-			for id in slovar["mornarica"] }
-		X.ladje = len(X.mornarica)
-		return X
+    def strel_plus(self, x: int, y: int) -> None:
+        """Zadane 5 celic v okolici (x,y) v obliki +."""
+        self.multistrel(x, y, MEDIUM)
 
-	def RandomChoice(self) -> tuple[int, int]:
-		"""Metoda, ki naključno strelja polja"""
-		prazna = [(x, y) for x, y in self if self.radar[x][y] == ' ']
-		return random.choice(prazna)
-	
-	def SemiRandomChoice(self) -> tuple[int, int]:
-		"""Metoda, ki naključno strelja polovico polj
-		(polja šahovnice iste barve)"""
-		prazna = [[], []]
-		for x, y in self:
-			if self.radar[x][y] == ' ': prazna[(x + y) % 2].append((x, y))
-		try:
-			return random.choice(min(prazna, key=lambda list: len(list)))
-		except IndexError:
-			return self.RandomChoice()
+    def velik_strel(self, x: int, y: int) -> None:
+        """Zadane 9 celic v okolici (x,y)."""
+        self.multistrel(x, y, BIG)
 
-	def RandomHunt(self) -> tuple[int, int]:
-		"""Naključno strelja okolico zadetih ladij"""
-		smeri = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-		sosednja = []
-		for x, y in self:
-			if self.radar[x][y] == 'x':
-				for i, j in smeri:
-					try:
-						if self.radar[x + i][y + j] == ' ':
-							sosednja.append((x + i, y + j))
-					except IndexError:
-						continue
-		return random.choice(sosednja)
+    def trojni_strel(self, x: int, y: int) -> None:
+        """Zadane tri naključne celice v okolici (x,y)."""
+        target = BIG.copy()
+        random.shuffle(target)
+        self.multistrel(x, y, target[:3])
 
-	def Hunt(self, x: int, y: int) -> tuple[int, int]:
-		"""Strelja v okolici zadetih ladij,
-		   pri čemer upošteva sosednja polja"""
-		smeri = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-		for i, j in smeri:
-			try:
-				if self.radar[x - i][y - j] == 'x':
-					if self.radar[x + i][y + j] == ' ':
-						return (x + i, y + j)
-			except IndexError:
-				continue
+    def torpedo(self, x: int, y: int) -> None:
+        """Po polju pošlje torpedo proti (x,y) iz naključne smeri."""
+        smer = int(random.random() * 4)
+        smeri = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+        start = [(0, y), (9, y), (x, 0), (x, 9)]
+        x, y = start[smer]
+        i, j = smeri[smer]
+        for _ in range(10):
+            if self.polje[x + 5][y + 5] == ' ' or self.radar[x][y] in 'xP':
+                self.odkrij(x, y)
+                x, y = x + i, y + j
+            else:
+                self.strel(x, y)
+                return
 
-	def PrestejProsta(self, x: int, y: int) -> list[int]:
-		"""Prešteje nezadeta polja v vsaki smeri"""
-		smeri = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-		prosta = [0, 0, 0, 0]
-		for k in range(4):
-			i, j = smeri[k]
-			try:
-				x1 = x + i
-				y1 = y + j
-				while self.radar[x1][y1] == ' ':
-					if x1 < 0 or y1 < 0:
-						raise IndexError
-					prosta[k] += 1
-					x1 += i
-					y1 += j
-			except IndexError:
-				continue
-		return prosta
+    def potopi(self, ladja: Ladja) -> None:
+        """Označi ladjo kot potopljeno."""
+        self.ladje -= 1
+        self.flota.pop(ladja.id)
+        for x, y in self:
+            if self.polje[x + 5][y + 5] == ladja.id:
+                self.radar[x][y] = 'P'
 
+    def Poteka(self) -> bool:
+        """Vrne True, če igra še ni končana."""
+        return self.ladje > 0
 
-	def StartHunt(self) -> tuple[int, int]:
-		"""Strelja okolico zadete ladje glede na število praznih polj
-		   v posamezni smeri"""
-		smeri = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-		for x, y in self:
-			if self.radar[x][y] == 'x':
-				prosta = self.PrestejProsta(x, y)
-				if prosta[0] + prosta[2] > prosta[1] + prosta[3]:
-					i, j = smeri[0] if prosta[0] > prosta[2] else smeri[2]
-				else:
-					i, j = smeri[1] if prosta[1] > prosta[3] else smeri[3]
-				return (x + i, y + j)
+    def v_slovar(self) -> dict:
+        """Stanje polja pretvori v slovar, ki ga lahko shranimo v datoteko."""
+        return {
+            "polje": [
+                [self.polje[x + 5][y + 5] for y in range(10)]
+                for x in range(10)
+            ],
+            "radar": [
+                [self.radar[x][y] for y in range(10)] for x in range(10)
+            ],
+            "flota": {id: self.flota[id].v_slovar()
+                      for id in self.flota}
+        }
 
-	def LahekAI(self) -> tuple[int, int]:
-		if all(self.radar[x][y] in " .P" for x, y in self):
-			return self.RandomChoice()
-		return self.RandomHunt()
+    @staticmethod
+    def iz_slovarja(slovar: dict) -> Polje:
+        """Iz slovarja prebere polje in ga vrne."""
+        X = Polje()
+        for x, y in X:
+            X.polje[x + 5][y + 5] = slovar["polje"][x][y]
+            X.radar[x][y] = slovar["radar"][x][y]
+        X.flota = {id: Ladja.iz_slovarja(slovar["flota"][id])
+                   for id in slovar["flota"]}
+        X.ladje = len(X.flota)
+        return X
 
-	def SrednjiAI(self) -> tuple[int, int]:
-		if all(self.radar[x][y] in " .P" for x, y in self):
-			return self.SemiRandomChoice()
-		for x, y in self:
-			if self.radar[x][y] == 'x':
-				if self.Hunt(x, y): return self.Hunt(x, y)
-		return self.StartHunt()
+    def nakljucen_strel(self) -> tuple[int, int]:
+        """Metoda, ki naključno strelja polja."""
+        prazna = [(x, y) for x, y in self if self.radar[x][y] == ' ']
+        return random.choice(prazna)
 
-	def MoznePostavitve(self) -> dict[Ladja, list[tuple[int, int, int]]]:
-		"""Za vsako ladjo preveri, kam jo lahko postavimo"""
-		postavitve = {}
-		for ship in self.mornarica.values():
-			postavitve[ship] = []
-			simulacija = Polje()
-			for x, y in self:
-				if self.radar[x][y] in ".P":
-					simulacija.polje[x + 5][y + 5] = '.'
-			simulacija.mornarica = self.mornarica
-			for x, y in self:
-				for r in range(2):
-					try:
-						simulacija.SetShip(ship, x, y, r)
-						if any(self.radar[x + r * i][y + i - r * i] != 'x'
-							for i in range(ship.dolzina)):
-							postavitve[ship].append((x,y,r))
-						simulacija.RemoveShip(ship, x, y, r)
-					except CellTaken:
-						continue
-		return postavitve
+    def skoraj_nakljucen_strel(self) -> tuple[int, int]:
+        """Metoda, ki naključno strelja polovico polj
+        (polja šahovnice iste barve)."""
+        prazna = [[], []]
+        for x, y in self:
+            if self.radar[x][y] == ' ':
+                prazna[(x + y) % 2].append((x, y))
+        try:
+            return random.choice(min(prazna, key=lambda list: len(list)))
+        except IndexError:
+            return self.nakljucen_strel()
 
-	def MonteCarlo(self, t: float=3) -> tuple[int, int]:
-		"""Z naključnimi postavitvami oceni verjetnosti lokacij ladij"""
-		start = time.time()
-		verjetnosti = [ [0] * 10 for _ in range(10)]
-		postavitve = self.MoznePostavitve()
-		for _ in range(10000):
-			if time.time() - start > t:
-				break
-			simulacija = Polje()
-			simulacija.mornarica = self.mornarica
-			legal = True
-			for ship in self.mornarica.values():
-				try:
-					simulacija.SetShip(ship, *random.choice(postavitve[ship]))
-				except CellTaken:
-					legal = False
-					continue
-			if not legal:
-				continue
-			if not self.PrestejLadje(simulacija, verjetnosti):
-				continue
-		return verjetnosti
+    def nakljucno_potapljanje(self) -> tuple[int, int]:
+        """Naključno strelja okolico zadetih ladij."""
+        smeri = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        sosednja = []
+        for x, y in self:
+            if self.radar[x][y] == 'x':
+                for i, j in smeri:
+                    try:
+                        if self.radar[x + i][y + j] == ' ':
+                            sosednja.append((x + i, y + j))
+                    except IndexError:
+                        continue
+        return random.choice(sosednja)
 
-	def PrestejLadje(self, simulacija: Polje,
-			tabela: list[list[int]]) -> bool:
-		"""Preveri, na katerih poljih so ladje in to zapiše v tabelo"""
-		if any(simulacija.polje[x + 5][y + 5] == ' ' and
-			   self.radar[x][y] == 'x' for x, y in self):
-			return False
-		for x, y in self:
-			if simulacija.polje[x + 5][y + 5] not in ' .':
-				tabela[x][y] += 1
-		return True
+    def potapljanje(self, x: int, y: int) -> tuple[int, int]:
+        """Strelja v okolici zadetih ladij,
+           pri čemer upošteva sosednja polja."""
+        smeri = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        for i, j in smeri:
+            try:
+                if self.radar[x - i][y - j] == 'x':
+                    if self.radar[x + i][y + j] == ' ':
+                        return (x + i, y + j)
+            except IndexError:
+                continue
 
-	def RekurzivnoPostavljanje(self, indeks: int, simulacija: Polje,
-			tabela: list[list[int]], start: float, t: float) -> None:
-		"""Rekurzivna funkcija za optimalno strategijo"""
-		if time.time() - start > t: return
-		if indeks == len(simulacija.mornarica):
-			self.PrestejLadje(simulacija, tabela)
-			return
-		for x, y in Polje():
-			for r in range(2):
-				try:
-					seznam = list(simulacija.mornarica.values())
-					simulacija.SetShip(seznam[indeks], x, y, r)
-					self.RekurzivnoPostavljanje(indeks + 1,
-						simulacija, tabela, start, t)
-					simulacija.RemoveShip(seznam[indeks], x, y, r)
-				except CellTaken:
-					continue
+    def prestej_prosta(self, x: int, y: int) -> list[int]:
+        """Prešteje nezadeta polja v vsaki smeri."""
+        smeri = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        prosta = [0, 0, 0, 0]
+        for k in range(4):
+            i, j = smeri[k]
+            try:
+                x1 = x + i
+                y1 = y + j
+                while self.radar[x1][y1] == ' ':
+                    if x1 < 0 or y1 < 0:
+                        raise IndexError
+                    prosta[k] += 1
+                    x1 += i
+                    y1 += j
+            except IndexError:
+                continue
+        return prosta
 
-	def OptimalHunt(self, simulacija: Polje,
-			tabela: list[list[int]], start: float, t: float) -> None:
-		"""Optimalna strategija, če smo že zadeli kakšno ladjo"""
-		for i, j in self:
-			x, y = 0, 0
-			if self.radar[i][j] == 'x':
-				x, y = i, j
-				break
-		for ship in list(self.mornarica.values()):
-			simulacija.mornarica.pop(ship.id)
-			for i in range(ship.dolzina):
-				for r in range(2):
-					try:
-						simulacija.SetShip(ship, x - r * i,
-							y - i + r * i, r)
-						self.RekurzivnoPostavljanje(0,
-							simulacija,	tabela, start, t)
-						simulacija.RemoveShip(ship, x - r * i,
-							y - i + r * i, r)
-					except CellTaken:
-						continue
-			simulacija.mornarica[ship.id] = ship
+    def zacni_potop(self) -> tuple[int, int]:
+        """Strelja okolico zadete ladje glede na število praznih polj
+           v posamezni smeri."""
+        smeri = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        for x, y in self:
+            if self.radar[x][y] == 'x':
+                prosta = self.prestej_prosta(x, y)
+                if prosta[0] + prosta[2] > prosta[1] + prosta[3]:
+                    i, j = smeri[0] if prosta[0] > prosta[2] else smeri[2]
+                else:
+                    i, j = smeri[1] if prosta[1] > prosta[3] else smeri[3]
+                return (x + i, y + j)
 
-	def Optimal(self, t: float=1) -> list[list[int]]:
-		"""Metoda, ki vrne porazdelitev verjetnosti"""
-		start = time.time()
-		verjetnosti = [ [0] * 10 for _ in range(10)]
-		simulacija = Polje()
-		for x, y in self:
-			if self.radar[x][y] in ".P":
-				simulacija.polje[x + 5][y + 5] = '.'
-		simulacija.mornarica = self.mornarica.copy()
-		if any(self.radar[x][y] == 'x' for x, y in self):
-			self.OptimalHunt(simulacija, verjetnosti, start, t)
-		else:
-			self.RekurzivnoPostavljanje(0, simulacija, verjetnosti, start, t)
-		if time.time() - start > t:
-			verjetnosti = self.MonteCarlo()
-		for x, y in self:
-			if self.radar[x][y] != ' ':
-				verjetnosti[x][y] = 0
-		return verjetnosti
+    def lahek_AI(self) -> tuple[int, int]:
+        """Vrne celico glede na lahko težavnost."""
+        if all(self.radar[x][y] in " .P" for x, y in self):
+            return self.nakljucen_strel()
+        return self.nakljucno_potapljanje()
 
-	def OptimalShot(self, verjetnosti: list[list[int]]=None) -> tuple[int, int]:
-		if verjetnosti == None: verjetnosti = self.Optimal()
-		if all(verjetnosti[x][y] == 0 for x, y in self):
-			return self.SrednjiAI()
-		sez = sorted([(x, y) for x, y in self],
-					 key=lambda p: -verjetnosti[p[0]][p[1]])
-		for p in sez:
-			if self.radar[p[0]][p[1]] == ' ': return p
+    def srednji_AI(self) -> tuple[int, int]:
+        """Vrne celico glede na srednjo težavnost."""
+        if all(self.radar[x][y] in " .P" for x, y in self):
+            return self.skoraj_nakljucen_strel()
+        for x, y in self:
+            if self.radar[x][y] == 'x':
+                if self.potapljanje(x, y):
+                    return self.potapljanje(x, y)
+        return self.zacni_potop()
 
-	def OptimalMedShot(self) -> tuple[int, int]:
-		verjetnosti = self.Optimal()
-		medshot_verjetnosti = [
-			[
-				sum(
-					verjetnosti[x + i][y + j]
-					for i, j in MEDIUM if x + i in range(10) and y + j in range(10))
-				for y in range(10)
-			]
-			for x in range(10)
-		]
-		for x, y in self:
-			if self.radar[x][y] != ' ':
-				medshot_verjetnosti[x][y] = 0
-		sez = sorted([(x, y) for x, y in self],
-					 key=lambda p: -medshot_verjetnosti[p[0]][p[1]])
-		for p in sez:
-			if self.radar[p[0]][p[1]] == ' ': return p
+    def mozne_postavitve(self) -> dict[Ladja, list[tuple[int, int, int]]]:
+        """Za vsako ladjo preveri, kam jo lahko postavimo."""
+        postavitve = {}
+        simulacija = Polje()
+        for x, y in self:
+            if self.radar[x][y] in ".P":
+                simulacija.polje[x + 5][y + 5] = '.'
+        simulacija.flota = self.flota
+        for ladja in self.flota.values():
+            postavitve[ladja] = []
+            for x, y in self:
+                for r in range(2):
+                    try:
+                        simulacija.postavi_ladjo(ladja, x, y, r)
+                        if any(self.radar[x + r * i][y + i - r * i] != 'x'
+                                for i in range(ladja.dolzina)):
+                            postavitve[ladja].append((x, y, r))
+                        simulacija.odstrani_ladjo(ladja, x, y, r)
+                    except CellTaken:
+                        continue
+        return postavitve
 
-	def OptimalBigShot(self, verjetnosti: list[list[int]]=None) -> tuple[int, int]:
-		if verjetnosti == None: verjetnosti = self.Optimal()
-		bigshot_verjetnosti = [
-			[
-				sum(
-					verjetnosti[x + i][y + j]	
-					for i, j in BIG if x + i in range(10) and y + j in range(10))
-				for y in range(10)
-			]
-			for x in range(10)
-		]
-		for x, y in self:
-			if self.radar[x][y] != ' ':
-				bigshot_verjetnosti[x][y] = 0
-		sez = sorted([(x, y) for x in range(1, 9) for y in range(1, 9)],
-					 key=lambda p: -bigshot_verjetnosti[p[0]][p[1]])
-		for p in sez:
-			if self.radar[p[0]][p[1]] == ' ': return p
+    def monte_carlo(self, t: float = 3) -> tuple[int, int]:
+        """Z naključnimi postavitvami oceni verjetnosti lokacij ladij.
+
+        t: Časovna omejitev v sekundah."""
+        start = time.time()
+        frekvence = [[0] * 10 for _ in range(10)]
+        postavitve = self.mozne_postavitve()
+        for _ in range(10000):
+            if time.time() - start > t:
+                break
+            simulacija = Polje()
+            simulacija.flota = self.flota
+            veljavna = True
+            for ladja in self.flota.values():
+                try:
+                    simulacija.postavi_ladjo(
+                        ladja,
+                        *random.choice(postavitve[ladja])
+                    )
+                except CellTaken:
+                    veljavna = False
+                    continue
+            if not veljavna:
+                continue
+            if not self.najdi_ladje(simulacija, frekvence):
+                continue
+        return frekvence
+
+    def najdi_ladje(self, simulacija: Polje, tabela: list[list[int]]) -> bool:
+        """Preveri, na katerih poljih so ladje in jih doda v tabelo."""
+        if any(simulacija.polje[x + 5][y + 5] == ' ' and
+               self.radar[x][y] == 'x' for x, y in self):
+            return False
+        for x, y in self:
+            if simulacija.polje[x + 5][y + 5] not in ' .':
+                tabela[x][y] += 1
+        return True
+
+    def rekurzivno_postavljanje(
+        self,
+        indeks: int,
+        simulacija: Polje,
+        tabela: list[list[int]],
+        start: float, t: float
+    ) -> None:
+        """Rekurzivna funkcija za optimalno strategijo.
+
+        indeks:     Indeks ladje, ki jo postavimo v tej iteraciji.
+        simulacija: Polje, na katerega postavljamo ladje.
+        tabela:     Tabela, v kateri shranjujemo frekvence ladij.
+        start:      Čas začetka.
+        t:          Časovna omejitev v sekundah."""
+        if time.time() - start > t:
+            return
+        if indeks == len(simulacija.flota):
+            self.najdi_ladje(simulacija, tabela)
+            return
+        for x, y in Polje():
+            for r in range(2):
+                try:
+                    seznam = list(simulacija.flota.values())
+                    simulacija.postavi_ladjo(seznam[indeks], x, y, r)
+                    self.rekurzivno_postavljanje(
+                        indeks + 1,
+                        simulacija,
+                        tabela,
+                        start,
+                        t
+                    )
+                    simulacija.odstrani_ladjo(seznam[indeks], x, y, r)
+                except CellTaken:
+                    continue
+
+    def optimalno_potapljanje(
+        self,
+        simulacija: Polje,
+        tabela: list[list[int]],
+        start: float,
+        t: float
+    ) -> None:
+        """Optimalna strategija, če smo že zadeli kakšno ladjo.
+
+        simulacija: Polje, na katerega postavljamo ladje.
+        tabela:     Tabela, v kateri shranjujemo frekvence ladij.
+        start:      Čas začetka.
+        t:          Časovna omejitev v sekundah."""
+        for i, j in self:
+            x, y = 0, 0
+            if self.radar[i][j] == 'x':
+                x, y = i, j
+                break
+        for ladja in list(self.flota.values()):
+            simulacija.flota.pop(ladja.id)
+            for i in range(ladja.dolzina):
+                for r in range(2):
+                    try:
+                        x0 = x - r * i
+                        y0 = y - i + r * i
+                        simulacija.postavi_ladjo(ladja, x0, y0, r)
+                        self.rekurzivno_postavljanje(
+                            0,
+                            simulacija,
+                            tabela,
+                            start,
+                            t
+                        )
+                        simulacija.odstrani_ladjo(ladja, x0, y0, r)
+                    except CellTaken:
+                        continue
+            simulacija.flota[ladja.id] = ladja
+
+    def optimalna_strategija(self, t: float = 1) -> list[list[int]]:
+        """Metoda, ki vrne frekvence polj po vseh možnih postavitvah.
+
+        t: Časovna omejitev v sekundah."""
+        start = time.time()
+        frekvence = [[0] * 10 for _ in range(10)]
+        simulacija = Polje()
+        for x, y in self:
+            if self.radar[x][y] in ".P":
+                simulacija.polje[x + 5][y + 5] = '.'
+        simulacija.flota = self.flota.copy()
+        if any(self.radar[x][y] == 'x' for x, y in self):
+            self.optimalno_potapljanje(simulacija, frekvence, start, t)
+        else:
+            self.rekurzivno_postavljanje(0, simulacija, frekvence, start, t)
+        if time.time() - start > t:
+            frekvence = self.monte_carlo()
+            if all(frekvence[x][y] < 10 for x, y in self):
+                for x, y in self:
+                    frekvence[x][y] = 0
+        for x, y in self:
+            if self.radar[x][y] != ' ':
+                frekvence[x][y] = 0
+        return frekvence
+
+    def tezek_AI(self, frekvence: list[list[int]] = None) -> tuple[int, int]:
+        """Vrne celico z največjim matematičnim upanjem.
+
+        frekvence: V primeru predhodno izračunanih frekvenc polj jih
+        podamo kot parameter."""
+        if frekvence == None:
+            frekvence = self.optimalna_strategija()
+        if all(frekvence[x][y] == 0 for x, y in self):
+            return self.srednji_AI()
+        sez = sorted(
+            [(x, y) for x, y in self],
+            key=lambda p: -frekvence[p[0]][p[1]]
+        )
+        for p in sez:
+            if self.radar[p[0]][p[1]] == ' ':
+                return p
+
+    def optimalen_plus(
+        self,
+        frekvence: list[list[int]] = None
+    ) -> tuple[int, int]:
+        """Vrne celico z največjim matematičnim upanjem za strel plus.
+
+        frekvence: V primeru predhodno izračunanih frekvenc polj jih
+        podamo kot parameter."""
+        if frekvence == None:
+            frekvence = self.optimalna_strategija()
+        medshot_frekvence = [
+            [
+                sum(
+                    frekvence[x + i][y + j] for i, j in MEDIUM if
+                    x + i in range(10) and y + j in range(10)
+                )
+                for y in range(10)
+            ]
+            for x in range(10)
+        ]
+        for x, y in self:
+            if self.radar[x][y] != ' ':
+                medshot_frekvence[x][y] = 0
+        sez = sorted(
+            [(x, y) for x, y in self],
+            key=lambda p: -medshot_frekvence[p[0]][p[1]]
+        )
+        for p in sez:
+            if self.radar[p[0]][p[1]] == ' ':
+                return p
+
+    def optimalen_velik_strel(
+        self,
+        frekvence: list[list[int]] = None
+    ) -> tuple[int, int]:
+        """Vrne celico z največjim matematičnim upanjem za velik strel.
+
+        frekvence: V primeru predhodno izračunanih frekvenc polj jih
+        podamo kot parameter."""
+        if frekvence == None:
+            frekvence = self.optimalna_strategija()
+        bigshot_frekvence = [
+            [
+                sum(
+                    frekvence[x + i][y + j] for i, j in BIG
+                    if x + i in range(10) and y + j in range(10))
+                for y in range(10)
+            ]
+            for x in range(10)
+        ]
+        for x, y in self:
+            if self.radar[x][y] != ' ':
+                bigshot_frekvence[x][y] = 0
+        sez = sorted(
+            [(x, y) for x, y in self],
+            key=lambda p: -bigshot_frekvence[p[0]][p[1]]
+        )
+        for p in sez:
+            if self.radar[p[0]][p[1]] == ' ':
+                return p

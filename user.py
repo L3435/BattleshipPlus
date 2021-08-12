@@ -5,117 +5,118 @@ import random
 import igra
 import statistika
 
+
 class User:
-	def __init__(self, name: str, pwd: str) -> None:
-		self.username = name
-		self.pwd = pwd
-		self.igre = dict({})
+    """Razred s podatki o uporabniku.
 
-	@staticmethod
-	def prijava(uporabnisko_ime: str, geslo_v_cistopisu: str) -> User:
-		"""Preveri, če je prijava uspešna"""
-		uporabnik = User.iz_datoteke(uporabnisko_ime)
-		if uporabnik is None:
-			raise ValueError("Uporabniško ime ne obstaja!")
-		elif uporabnik.preveri_geslo(geslo_v_cistopisu):
-			return uporabnik
-		else:
-			raise ValueError("Napačno geslo!")
+    uporabnisko_ime: Uporabniško ime.
+    geslo:           Zašifrirano geslo.
+    igre:            Seznam aktivnih iger."""
 
-	@staticmethod
-	def registracija(uporabnisko_ime: str, geslo: str) -> User:
-		"""Preveri, če je registracija uspešna"""
-		if User.iz_datoteke(uporabnisko_ime) is not None:
-			raise ValueError("Uporabniško ime že obstaja")
-		else:
-			pwd = User._zasifriraj_geslo(geslo)
-			uporabnik = User(uporabnisko_ime, pwd)
-			uporabnik.v_datoteko()
-			return uporabnik
+    def __init__(self, uporabnisko_ime: str, geslo: str) -> None:
+        self.uporabnisko_ime = uporabnisko_ime
+        self.geslo = geslo
+        self.igre = []
 
-	def _zasifriraj_geslo(geslo_v_cistopisu: str, sol=None) -> str:
-		"""Zašifrira geslo"""
-		if sol is None:
-			sol = str(random.getrandbits(32))
-		posoljeno_geslo = sol + geslo_v_cistopisu
-		h = hashlib.blake2b()
-		h.update(posoljeno_geslo.encode(encoding="utf-8"))
-		return f"{sol}${h.hexdigest()}"
+    @staticmethod
+    def prijava(uporabnisko_ime: str, geslo_v_cistopisu: str) -> User:
+        """Preveri, če je prijava uspešna."""
+        uporabnik = User.iz_datoteke(uporabnisko_ime)
+        if uporabnik is None:
+            raise ValueError("Uporabniško ime ne obstaja!")
+        elif uporabnik.preveri_geslo(geslo_v_cistopisu):
+            return uporabnik
+        else:
+            raise ValueError("Napačno geslo!")
 
+    @staticmethod
+    def registracija(uporabnisko_ime: str, geslo: str) -> User:
+        """Preveri, če je registracija uspešna."""
+        if User.iz_datoteke(uporabnisko_ime) != None:
+            raise ValueError("Uporabniško ime že obstaja")
+        else:
+            pwd = User._zasifriraj_geslo(geslo)
+            uporabnik = User(uporabnisko_ime, pwd)
+            uporabnik.v_datoteko()
+            return uporabnik
 
-	def v_slovar(self) -> dict:
-		"""Uporabnika shrani v slovar"""
-		return {
-			"username": self.username,
-			"pwd": self.pwd,
-			"igre": {id : self.igre[id].v_slovar() for id in self.igre}
-		}
+    def _zasifriraj_geslo(geslo_v_cistopisu: str, sol=None) -> str:
+        """Zašifrira geslo."""
+        if sol is None:
+            sol = str(random.getrandbits(32))
+        posoljeno_geslo = sol + geslo_v_cistopisu
+        h = hashlib.blake2b()
+        h.update(posoljeno_geslo.encode(encoding="utf-8"))
+        return f"{sol}${h.hexdigest()}"
 
-	def v_datoteko(self) -> None:
-		"""Uporabnika shrani v datoteko"""
-		with open(
-			User.UserFile(self.username), "w"
-		) as datoteka:
-			json.dump(self.v_slovar(), datoteka, ensure_ascii=False, indent=4)
+    def v_slovar(self) -> dict:
+        """Uporabnika shrani v slovar."""
+        return {
+            "username": self.uporabnisko_ime,
+            "pwd": self.geslo,
+            "igre": [igra.v_slovar() for igra in self.igre]
+        }
 
-	def preveri_geslo(self, geslo: str) -> bool:
-		"""Preveri, če je geslo pravilno"""
-		sol, _ = self.pwd.split("$")
-		return self.pwd == User._zasifriraj_geslo(geslo, sol)
+    def v_datoteko(self) -> None:
+        """Uporabnika shrani v datoteko."""
+        with open(
+                User.uporabnikova_datoteka(self.uporabnisko_ime), "w"
+        ) as datoteka:
+            json.dump(self.v_slovar(), datoteka, ensure_ascii=False, indent=4)
 
-	@staticmethod
-	def UserFile(username: str) -> str:
-		return f"users/user_{username}.json"
-		# Windows ne dovoli uporabe določenih imen za datoteke,
-		# kar obidemo s predpono "user_"
+    def preveri_geslo(self, geslo: str) -> bool:
+        """Preveri, če je geslo pravilno."""
+        sol, _ = self.geslo.split("$")
+        return self.geslo == User._zasifriraj_geslo(geslo, sol)
 
-	def StatsName(self) -> str:
-		"""Vrne niz, ki določa statistiko uporabnika v slovarju"""
-		return f"stats_{self.username}"
+    @staticmethod
+    def uporabnikova_datoteka(username: str) -> str:
+        return f"users/user_{username}.json"
+        # Windows ne dovoli uporabe določenih imen za datoteke,
+        # kar obidemo s predpono "user_"
 
-	@staticmethod
-	def iz_slovarja(slovar: dict) -> User:
-		"""Iz slovarja prebere uporabnika"""
-		username = slovar["username"]
-		pwd = slovar["pwd"]
-		user = User(username, pwd)
-		user.igre = {int(id) : igra.Igra.iz_slovarja(slovar["igre"][id])
-			for id in slovar["igre"]}
-		return user
+    def uporabnikova_statistika(self) -> str:
+        """Vrne niz, ki določa statistiko uporabnika v slovarju."""
+        return f"stats_{self.uporabnisko_ime}"
 
-	@staticmethod
-	def iz_datoteke(username: str) -> User:
-		"""Iz datoteke prebere uporabnika"""
-		try:
-			with open(User.UserFile(username)) as datoteka:
-				slovar = json.load(datoteka)
-				return User.iz_slovarja(slovar)
-		except FileNotFoundError:
-			return None
+    @staticmethod
+    def iz_slovarja(slovar: dict) -> User:
+        """Iz slovarja prebere uporabnika in ga vrne."""
+        username = slovar["username"]
+        pwd = slovar["pwd"]
+        user = User(username, pwd)
+        user.igre = [igra.Igra.iz_slovarja(game) for game in slovar["igre"]]
+        return user
 
-	def prost_id_igre(self) -> int:
-		"""Vrne id za novo igro"""
-		return len(self.igre)
+    @staticmethod
+    def iz_datoteke(username: str) -> User:
+        """Iz datoteke prebere uporabnika in ga vrne."""
+        try:
+            with open(User.uporabnikova_datoteka(username)) as datoteka:
+                slovar = json.load(datoteka)
+                return User.iz_slovarja(slovar)
+        except FileNotFoundError:
+            return None
 
-	def nova_igra(self, tezavnost: int) -> int:
-		"""Ustvari novo igro"""
-		id = self.prost_id_igre()
-		self.igre[id] = igra.Igra(tezavnost)
-		return id
+    def nova_igra(self, tezavnost: int) -> int:
+        """Ustvari novo igro."""
+        self.igre.append(igra.Igra(tezavnost))
+        return len(self.igre) - 1
 
-	def konec_igre(self, id: int) -> None:
-		"""Zaključi igro in shrani njen izid"""
-		igra = self.igre[id]
-		stats = statistika.get_stats()
-		if igra.tezavnost in [0, 1, 2, 3]:
-			stats[self.StatsName()][str(igra.tezavnost)][igra.Konec() - 1] += 1
-			dif = "1" if igra.tezavnost else "0"
-			if igra.Konec() == 1:
-				stats["min_moves"][dif].append((self.username, igra.poteze))
-				stats["min_moves"][dif].sort(key=lambda p: p[1])
-				stats["min_moves"][dif] = stats["min_moves"][dif][:10]
-		statistika.save_stats(stats)
-		for i in range(id, len(self.igre) - 1):
-			self.igre[i] = self.igre[i + 1]
-		self.igre.pop(len(self.igre) - 1)
-		self.v_datoteko()
+    def konec_igre(self, id: int) -> None:
+        """Zaključi igro in shrani njen izid."""
+        igra = self.igre[id]
+        stats = statistika.get_stats()
+        if igra.tezavnost in [0, 1, 2, 3]:
+            stats[self.uporabnikova_statistika()]\
+				[str(igra.tezavnost)][igra.konec() - 1] += 1
+            dif = "1" if igra.tezavnost else "0"
+            if igra.konec() == 1:
+                stats["min_moves"][dif].append(
+                    (self.uporabnisko_ime, igra.poteze)
+                )
+                stats["min_moves"][dif].sort(key=lambda p: p[1])
+                stats["min_moves"][dif] = stats["min_moves"][dif][:10]
+        statistika.save_stats(stats)
+        self.igre = self.igre[:id] + self.igre[id + 1:]
+        self.v_datoteko()
