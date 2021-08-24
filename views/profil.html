@@ -68,7 +68,7 @@
 					Način: {{"plus" if dif == 0 else "klasičen"}}
 				</p>
 				<p class=" has-text-light">
-					Težavnost: {{ dif if dif else "/" }}
+					Težavnost: {{"?" if dif == -1 else (dif if dif else "/")}}
 				</p>
 				</div>
 				<div style="float:right; display: flex; align-items: center;">

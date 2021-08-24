@@ -25,7 +25,7 @@
 				<tbody>
 					% stats = statistika.copy()
 					% stats.pop("min_moves")
-					% for j, x in enumerate(sorted(stats, key=lambda x: (-stats[x]["0"][0],stats[x]["0"][1]))):
+					% for j, x in enumerate(sorted(stats, key=lambda p: (-stats[p]["0"][0],-stats[p]["0"][1],stats[p]["0"][2]))):
 					% username = x[6:]
 					% if j < 10 and stats[x]["0"][0] > 0:
 					<tr>
