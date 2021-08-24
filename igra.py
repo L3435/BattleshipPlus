@@ -1,4 +1,5 @@
 from __future__ import annotations
+from errors import AlreadyShot
 import battlefield
 
 MAP = {
@@ -95,7 +96,7 @@ class Igra:
                     MAP[metoda](P2, *AI_MAP[metoda](P2))
                     P1.ladja_z_metodo(metoda).stevec = -1
                     return
-            if P2.metoda_dostopna("Cluster"):
+            if P1.metoda_dostopna("Cluster"):
                 self.streljaj_trojno()
                 return
         if self.tezavnost in DIF_MAP:
@@ -126,6 +127,8 @@ class Igra:
         """Ustreli polje (x,y) in naredi računalniško potezo"""
         P1 = self.igralec1
         P2 = self.igralec2
+        if P1.radar[x][y] != ' ':
+            raise AlreadyShot
         MAP[self.selected](P1, x, y)
         if self.selected:
             P2.ladja_z_metodo(self.selected).stevec = -1
