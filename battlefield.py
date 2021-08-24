@@ -8,6 +8,24 @@ import time
 MEDIUM = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)]
 BIG = [(i, j) for i in range(-1, 2) for j in range(-1, 2)]
 
+OPIS_STRELOV = {
+	"BigShot" : """
+		Z letalonosilke vzleti letalo, ki na polje spusti bombo.
+		Ta odkrije vseh 9 celic v okolici izbrane celice.
+	""",
+	"MedShot" : """
+		Na bojni ladji izstreli glavna baterija.
+		Na polju odkrije 5 celic v obliki + s središčem v izbrani celici.
+	""",
+    "Torpedo" : """
+        Podmornica izstreli torpedo iz naključne smeri.
+        Ta odkriva polja v liniji, dokler ne zadene ladje.
+    """,
+    "Cluster" : """
+        Križarka sproži 3 naboje hkrati.
+        Ti zadenejo 3 naključno izbrana polja v okolici izbrane celice.
+    """
+}
 
 class Ladja:
     """Razred, ki vsebuje vse podatke o ladjah.

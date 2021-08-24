@@ -1,3 +1,4 @@
+from battlefield import OPIS_STRELOV
 from errors import AlreadyShot
 import bottle
 import webbrowser
@@ -165,7 +166,8 @@ def trenutna(id: int):
         "igra.html",
         id=id,
         igra=igra,
-        user=trenutni_uporabnik()
+        user=trenutni_uporabnik(),
+        opis=OPIS_STRELOV
     )
 
 
@@ -231,7 +233,10 @@ def slike(picture):
     return bottle.static_file(picture, "img")
 
 
-if __name__ == '__main__':
+@bottle.get("/css/<stylesheet>")
+def style(stylesheet):
+    return bottle.static_file(stylesheet, "css")
+
     try:
         webbrowser.open("http://localhost:3435", new=2)
     except:

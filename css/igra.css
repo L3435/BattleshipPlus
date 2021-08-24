@@ -1,0 +1,71 @@
+table {
+	width: 400px;
+	height: 400px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+td {
+	width: 40px;
+}
+
+tr {
+	height: 40px;
+}
+
+.prazna:hover {
+	background-color: aqua;
+}
+
+.zgresena {
+	background-color: blue;
+}
+
+.zadeta {
+	background-color: crimson;
+}
+
+.potopljena {
+	background-color: gray;
+}
+
+.ladja {
+	background-color: darkslategray;
+}
+
+.tooltip {
+	position: relative;
+	display: inline-block;
+  }
+
+  .tooltip .tooltiptext {
+	visibility: hidden;
+	width: 300px;
+	background-color: #555;
+	color: #fff;
+	text-align: left;
+	padding: 5px 5px;
+	border-radius: 6px;
+	top: 100%;
+	left: 50%;
+	margin-left: -150px;
+	position: absolute;
+	z-index: 1;
+	opacity: 0;
+	transition: opacity 1s;
+  }
+  .tooltip:hover .tooltiptext {
+	visibility: visible;
+	opacity: 1;
+  }
+
+  .tooltip .tooltiptext::after {
+	content: " ";
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: transparent transparent #555 transparent;
+  }

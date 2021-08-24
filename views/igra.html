@@ -1,41 +1,6 @@
 % rebase("menu.html")
 
-<style>
-	table {
-		width: 400px;
-		height: 400px;
-		margin-left: auto;
-		margin-right: auto;
-	}
-
-	td {
-		width: 40px;
-	}
-
-	tr {
-		height: 40px;
-	}
-
-	.prazna:hover {
-		background-color: aqua;
-	}
-
-	.zgresena {
-		background-color: blue;
-	}
-
-	.zadeta {
-		background-color: crimson;
-	}
-
-	.potopljena {
-		background-color: gray;
-	}
-
-	.ladja {
-		background-color: darkslategray;
-	}
-</style>
+<link rel="stylesheet" href="/css/igra.css">
 
 <section class="section">
 	<div class="columns">
@@ -45,27 +10,21 @@
 				<tr>
 					% for y in range(10):
 					% if igra.igralec1.radar[x][y] == '.':
-					<td class="zgresena" style="padding: 0 0 0 0;">
-						<div style="display:block;width:100%;height:100%;"></div>
-					</td>
+					<td class="zgresena"></td>
 					% elif igra.igralec1.radar[x][y] == 'x':
-					<td class="zadeta" style="padding: 0 0 0 0;">
-						<div style="display:block;width:100%;height:100%;"></div>
-					</td>
+					<td class="zadeta"></td>
 					% elif igra.igralec1.radar[x][y] == 'P':
-					<td class="potopljena" style="padding: 0 0 0 0;">
-						<div style="display:block;width:100%;height:100%;"></div>
-					</td>
+					<td class="potopljena"></td>
 					% elif igra.konec() and igra.igralec1.polje[x + 5][y + 5] != ' ':
-					<td class="ladja" style="padding: 0 0 0 0;">
-						<div style="display:block;width:100%;height:100%;"></div>
-					</td>
+					<td class="ladja"></td>
 					% elif igra.igralec1.radar[x][y] == ' ':
-					<td % if not igra.konec(): class="prazna" % end style="padding: 0 0 0 0;">
+					<td
+					% if not igra.konec():
+					class="prazna" style="padding: 0 0 0 0;"
+					% end
+					>
 						% if not igra.konec():
 						<a style="display:block;width:100%;height:100%;" href="/igra/{{id}}?x={{x}}&y={{y}}"></a>
-						% else:
-						<div style="display:block;width:100%;height:100%;"></div>
 						% end
 					</td>
 					% end
@@ -77,12 +36,70 @@
 			<div class="buttons is-centered">
 				% for ship in igra.igralec2.flota.values():
 				% if ship.metoda and ship.nezadeta == ship.dolzina:
-				% if ship.special() and not ship.metoda == igra.selected:
-				<a class="button is-info" href="/igra/{{id}}/{{ship.metoda}}">{{ship.metoda + f" ({ship.stevec}/5)"}}</a>
-				% elif not ship.metoda == igra.selected:
-				<a class="button is-info"href="/igra/{{id}}/{{ship.metoda}}" disabled>{{ship.metoda + f" ({ship.stevec}/5)"}}</a>
+				% if ship.special():
+				<div class="tooltip">
+					% if ship.metoda != igra.selected:
+					<a class="button is-info" href="/igra/{{id}}/{{ship.metoda}}">
+					% else:
+					<a class="button is-success" href="/igra/{{id}}/{{ship.metoda}}">
+					% end
+						{{ship.metoda + f" ({ship.stevec}/5)"}}
+					</a>
+						<span class="tooltiptext">
+						<table class="table is-bordered" style="width:120px;height:120px;float:right;margin-left: 20px;">
+							<tr>
+							<td
+							% if ship.metoda == "BigShot":
+							class="zadeta"
+							% end
+							></td>
+							<td class="zadeta"></td>
+							<td
+							% if ship.metoda == "BigShot":
+							class="zgresena"
+							% end
+							></td>
+							</tr>
+							<tr>
+							<td
+							% if ship.metoda != "Torpedo":
+							class="zgresena"
+							% end
+							></td>
+							<td
+							% if ship.metoda != "Cluster":
+							class="zgresena"
+							% end
+							></td>
+							<td
+							% if ship.metoda in ["BigShot", "MedShot"]:
+							class="zgresena"
+							% end
+							></td>
+							</tr>
+							<tr>
+							<td
+							% if ship.metoda == "BigShot":
+							class="zgresena"
+							% end
+							></td>
+							<td
+							% if ship.metoda != "Cluster":
+							class="zgresena"
+							% end
+							></td>
+							<td
+							% if ship.metoda in ["BigShot", "Cluster"]:
+							class="zadeta"
+							% end
+							></td>
+							</tr>
+						</table>
+						{{opis[ship.metoda]}}
+						</span>
+				</div>
 				% else:
-				<a class="button is-success"href="/igra/{{id}}/{{ship.metoda}}">{{ship.metoda + f" ({ship.stevec}/5)"}}</a>
+				<a class="button is-info" disabled>{{ship.metoda + f" ({ship.stevec}/5)"}}</a>
 				% end
 				% end
 				% end
@@ -95,25 +112,15 @@
 				<tr>
 					% for y in range(10):
 					% if igra.igralec2.radar[x][y] == '.':
-					<td class="zgresena" style="padding: 0 0 0 0;">
-						<div style="display:block;width:100%;height:100%;"></div>
-					</td>
+					<td class="zgresena"></td>
 					% elif igra.igralec2.radar[x][y] == 'x':
-					<td class="zadeta" style="padding: 0 0 0 0;">
-						<div style="display:block;width:100%;height:100%;"></div>
-					</td>
+					<td class="zadeta"></td>
 					% elif igra.igralec2.radar[x][y] == 'P':
-					<td class="potopljena" style="padding: 0 0 0 0;">
-						<div style="display:block;width:100%;height:100%;"></div>
-					</td>
+					<td class="potopljena"></td>
 					% elif igra.igralec2.polje[x + 5][y + 5] != ' ':
-					<td class="ladja" style="padding: 0 0 0 0;">
-						<div style="display:block;width:100%;height:100%;"></div>
-					</td>
+					<td class="ladja"></td>
 					% elif igra.igralec2.radar[x][y] == ' ':
-					<td style="padding: 0 0 0 0;">
-						<div style="display:block;width:100%;height:100%;"></div>
-					</td>
+					<td></td>
 					% end
 					% end
 				</tr>
