@@ -1,0 +1,67 @@
+% rebase("menu.html")
+
+<style>
+	a:hover {
+		color: cyan;
+	}
+</style>
+
+<section class="section">
+	<div class="container">
+		<h1 class="title has-text-light">O projektu</h1>
+		<p class="has-text-light mb-4" style="text-align: justify;">
+			Projekt je nastal kot zaključna projektna naloga pri predmetu Uvod
+			v programiranje v 1. letniku študija na Fakulteti za matematiko in
+			fiziko Univerze v Ljubljani. Glavni inspiraciji za implementirane
+			algoritme sta bila
+			<a href="https://www.youtube.com/watch?v=LbALFZoRrw8">
+				videoposnetek Youtube kanala Vsauce2
+			</a>
+			in
+			<a href="https://www.datagenetics.com/blog/december32011/">
+				objava na blogu DataGenetics
+			</a>
+			, ki odlično prestavita igro in pristope k igranju.
+		</p>
+		<p class="has-text-light mb-4" style="text-align: justify;">
+			Potapljanje ladjic je strateška igra z začetki v 20. stoletju. Ker
+			je to igra s prikritimi podatki, je na prvi pogled težko najti
+			strategijo, ki bi zanesljivo zmagovala igre proti človeku.
+			Najenostavnejši pristop je ta, da naključno streljamo po polju,
+			dokler ne zadenemo kakšne ladje, nato pa jo poskusimo potopiti.
+			Izkaže se, da je ta strategija zelo slaba. Pogosto lahko namreč
+			pride do tega, da streljamo celico, na kateri ladje zagotovo ni, a
+			pri naključnem streljanju tega ne moremo upoštevati.
+		</p>
+		<p class="has-text-light mb-4" style="text-align: justify;">
+			Malo boljše rezultate dobimo, če si predstavljamo, da je igralno
+			polje šahovnica, in streljamo le polja ene barve, dokler ne
+			zadenemo kakšne ladje, nato pa jo poskusimo potopiti. Ker vsaka
+			ladja zaseda vsaj dve sosednji polji, bomo s tem namreč našli vse
+			ladje, pri tem pa za iskanje porabili največ 50 potez. S tem smo
+			bistveno zmanjšali število potrebnih potez.
+		</p>
+		<p class="has-text-light mb-4" style="text-align: justify;">
+			Algoritem lahko še izboljšamo. Računalnik lahko zelo hitro preveri
+			veliko podatkov, kar bomo izrabili pri zadnji strategiji.
+			Poskusimo izračunati, na kateri celici se najverjetneje nahaja
+			ladja, nato pa tja tudi streljati. Poskusimo lahko preveriti vse
+			možne postavitve ladij, a se izkaže, da je teh preveč, da bi to
+			lahko naredili v realnem času. Te ideje vseeno ne zavrzimo, saj
+			je to vseeno zelo dobra strategija za končnico, ko je v igri manj
+			ladij. V začetni fazi se lahko igre lotimo na več načinov. Ena
+			možnost je, da zanemarimo pogojno verjetnost in preprosto za vsako
+			ladjo preverimo, kolikokrat jo lahko postavimo na posamezno polje
+			(ta strategija je uporabljena na blogu DataGenetics). Alternativa,
+			ki sem jo ubral jaz, pa je ta, da v začetni fazi z Monte Carlo
+			simulacijami ocenimo, katero celico bi bilo najbolje streljati.
+		</p>
+		<p class="has-text-light mb-4" style="text-align: justify;">
+			Zgoraj so opisani ravno trije težavnostni nivoji, ki jih lahko
+			izberete na začetku nove igre. Spodnji graf prikazuje, kolikšen
+			delež iger se konča po določenem številu potez (pri težavnostih 1
+			in 2 sem naredil 50000 simulacij, pri težavnosti 3 pa 5000):
+		</p>
+		<img src="/img/graf.jpg" style="display: block;width:50%;margin-left:auto;margin-right:auto;">
+	</div>
+</section>

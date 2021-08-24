@@ -38,6 +38,9 @@ class User:
             pwd = User._zasifriraj_geslo(geslo)
             uporabnik = User(uporabnisko_ime, pwd)
             uporabnik.v_datoteko()
+            stats = statistika.get_stats()
+            stats[uporabnik.uporabnikova_statistika()] = {str(i) : [0, 0, 0] for i in range(4)}
+            statistika.save_stats(stats)
             return uporabnik
 
     def _zasifriraj_geslo(geslo_v_cistopisu: str, sol=None) -> str:

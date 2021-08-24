@@ -2,10 +2,10 @@ from battlefield import OPIS_STRELOV
 from errors import AlreadyShot
 import bottle
 import webbrowser
-import battlefield
 import user
-import igra
 import statistika
+import threading
+from time import sleep
 
 USERNAME_COOKIE = "username"
 SECRET = "2 + 2 is 4 - 1 is 3 quickmaths"
@@ -228,6 +228,11 @@ def lestvice_plus():
     )
 
 
+@bottle.get("/about")
+def about_page():
+    return bottle.template("about.html", user=trenutni_uporabnik())
+
+
 @bottle.get("/img/<picture>")
 def slike(picture):
     return bottle.static_file(picture, "img")
@@ -237,9 +242,17 @@ def slike(picture):
 def style(stylesheet):
     return bottle.static_file(stylesheet, "css")
 
+
+def odpri_stran():
+    sleep(1.5)
     try:
         webbrowser.open("http://localhost:3435", new=2)
     except:
         print("Pri odpiranju spletnega brskalnika je prišlo do napake.")
         print("Do igre lahko dostopate na povezavi http://localhost:3435.\n")
+
+
+if __name__ == '__main__':
+    t1 = threading.Thread(target=odpri_stran)
+    t1.start()
     bottle.run(host="0.0.0.0", port="3435")
