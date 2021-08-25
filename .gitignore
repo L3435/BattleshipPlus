@@ -1,4 +1,4 @@
-*.json
+users
 *.xlsx
 AI_analysis.py
 
