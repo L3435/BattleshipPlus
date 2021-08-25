@@ -489,7 +489,7 @@ class Polje:
         for ladja in self.flota.values():
             for x, y, r in postavitve[ladja]:
                 counter = [self.radar[x + r * i][y + i - r * i]
-                           for i in range(ladja.dolzina)].count('x')
+                           for i in range(ladja.dolzina)].count('x') ** 3
                 for i in range(ladja.dolzina):
                     frekvence[x + r * i][y + i - r * i] += 200 * counter + 1
         return frekvence
@@ -503,10 +503,9 @@ class Polje:
             frekvence = self.optimalna_strategija(1)
         if all(frekvence[x][y] == 0 for x, y in self):
             return self.srednji_AI()
-        sez = sorted(
-            [(x, y) for x, y in self],
-            key=lambda p: -frekvence[p[0]][p[1]]
-        )
+        sez = [(x, y) for x, y in self]
+        random.shuffle(sez)
+        sez.sort(key=lambda p: -frekvence[p[0]][p[1]])
         for p in sez:
             if self.radar[p[0]][p[1]] == ' ':
                 return p
@@ -534,10 +533,9 @@ class Polje:
         for x, y in self:
             if self.radar[x][y] != ' ':
                 medshot_frekvence[x][y] = 0
-        sez = sorted(
-            [(x, y) for x, y in self],
-            key=lambda p: -medshot_frekvence[p[0]][p[1]]
-        )
+        sez = [(x, y) for x, y in self]
+        random.shuffle(sez)
+        sez.sort(key=lambda p: -medshot_frekvence[p[0]][p[1]])
         for p in sez:
             if self.radar[p[0]][p[1]] == ' ':
                 return p
@@ -564,10 +562,9 @@ class Polje:
         for x, y in self:
             if self.radar[x][y] != ' ':
                 bigshot_frekvence[x][y] = 0
-        sez = sorted(
-            [(x, y) for x, y in self],
-            key=lambda p: -bigshot_frekvence[p[0]][p[1]]
-        )
+        sez = [(x, y) for x, y in self]
+        random.shuffle(sez)
+        sez.sort(key=lambda p: -bigshot_frekvence[p[0]][p[1]])
         for p in sez:
             if self.radar[p[0]][p[1]] == ' ':
                 return p
