@@ -374,40 +374,12 @@ class Polje:
                     try:
                         simulacija.postavi_ladjo(ladja, x, y, r)
                         if any(self.radar[x + r * i][y + i - r * i] != 'x'
-                                for i in range(ladja.dolzina)):
+                               for i in range(ladja.dolzina)):
                             postavitve[ladja].append((x, y, r))
                         simulacija.odstrani_ladjo(ladja, x, y, r)
                     except CellTaken:
                         continue
         return postavitve
-
-    def monte_carlo(self, t: float = 3) -> tuple[int, int]:
-        """Z naključnimi postavitvami oceni verjetnosti lokacij ladij.
-
-        t: Časovna omejitev v sekundah."""
-        start = time.time()
-        frekvence = [[0] * 10 for _ in range(10)]
-        postavitve = self.mozne_postavitve()
-        for _ in range(10000):
-            if time.time() - start > t:
-                break
-            simulacija = Polje()
-            simulacija.flota = self.flota
-            veljavna = True
-            for ladja in self.flota.values():
-                try:
-                    simulacija.postavi_ladjo(
-                        ladja,
-                        *random.choice(postavitve[ladja])
-                    )
-                except CellTaken:
-                    veljavna = False
-                    continue
-            if not veljavna:
-                continue
-            if not self.najdi_ladje(simulacija, frekvence):
-                continue
-        return frekvence
 
     def najdi_ladje(self, simulacija: Polje, tabela: list[list[int]]) -> bool:
         """Preveri, na katerih poljih so ladje in jih doda v tabelo."""
@@ -427,7 +399,6 @@ class Polje:
         start: float, t: float
     ) -> None:
         """Rekurzivna funkcija za optimalno strategijo.
-
         indeks:     Indeks ladje, ki jo postavimo v tej iteraciji.
         simulacija: Polje, na katerega postavljamo ladje.
         tabela:     Tabela, v kateri shranjujemo frekvence ladij.
@@ -438,10 +409,10 @@ class Polje:
         if indeks == len(simulacija.flota):
             self.najdi_ladje(simulacija, tabela)
             return
+        seznam = list(simulacija.flota.values())
         for x, y in Polje():
             for r in range(2):
                 try:
-                    seznam = list(simulacija.flota.values())
                     simulacija.postavi_ladjo(seznam[indeks], x, y, r)
                     self.rekurzivno_postavljanje(
                         indeks + 1,
@@ -462,7 +433,6 @@ class Polje:
         t: float
     ) -> None:
         """Optimalna strategija, če smo že zadeli kakšno ladjo.
-
         simulacija: Polje, na katerega postavljamo ladje.
         tabela:     Tabela, v kateri shranjujemo frekvence ladij.
         start:      Čas začetka.
@@ -494,7 +464,6 @@ class Polje:
 
     def optimalna_strategija(self, t: float = 1) -> list[list[int]]:
         """Metoda, ki vrne frekvence polj po vseh možnih postavitvah.
-
         t: Časovna omejitev v sekundah."""
         start = time.time()
         frekvence = [[0] * 10 for _ in range(10)]
@@ -508,13 +477,21 @@ class Polje:
         else:
             self.rekurzivno_postavljanje(0, simulacija, frekvence, start, t)
         if time.time() - start > t:
-            frekvence = self.monte_carlo()
-            if all(frekvence[x][y] < 10 for x, y in self):
-                for x, y in self:
-                    frekvence[x][y] = 0
+            frekvence = self.semi_optimalna_strategija()
         for x, y in self:
             if self.radar[x][y] != ' ':
                 frekvence[x][y] = 0
+        return frekvence
+
+    def semi_optimalna_strategija(self):
+        postavitve = self.mozne_postavitve()
+        frekvence = [[0] * 10 for _ in range(10)]
+        for ladja in self.flota.values():
+            for x, y, r in postavitve[ladja]:
+                counter = [self.radar[x + r * i][y + i - r * i]
+                           for i in range(ladja.dolzina)].count('x')
+                for i in range(ladja.dolzina):
+                    frekvence[x + r * i][y + i - r * i] += 200 * counter + 1
         return frekvence
 
     def tezek_AI(self, frekvence: list[list[int]] = None) -> tuple[int, int]:
@@ -523,7 +500,7 @@ class Polje:
         frekvence: V primeru predhodno izračunanih frekvenc polj jih
         podamo kot parameter."""
         if frekvence == None:
-            frekvence = self.optimalna_strategija()
+            frekvence = self.optimalna_strategija(1)
         if all(frekvence[x][y] == 0 for x, y in self):
             return self.srednji_AI()
         sez = sorted(
