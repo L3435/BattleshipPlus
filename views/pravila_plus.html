@@ -1,27 +1,111 @@
 % rebase("menu.html")
 
+<link rel="stylesheet" href="/css/rules.css">
+
 <section class="section">
 	<div class="container">
 		<h1 class="title has-text-light">Pravila igre</h1>
 		<h2 class="subtitle has-text-light mt-5">Način Plus</h2>
-		<p class="has-text-light mb-6" style="text-align: justify;">
+		<p class="has-text-light mt-5" style="text-align: justify;">
 			Način Plus je posebna nadgradnja igre potapljanja ladjic. Še vedno
 			veljajo vsa pravila klasičnega načina, dodanih pa je še nekaj
 			posebnih potez.
 		</p>
-		<p class="has-text-light mb-6" style="text-align: justify;">
+		<p class="has-text-light mt-5" style="text-align: justify;">
 			Štiri izmed petih ladjih imajo v tem načinu posebne strele.
-			Križarka ima poseben strel "Cluster". Ta izmed devetih polj, ki so
-			najbližje izbranemu, naključno izbere tri, ter strelja nanje. Pri
-			tem se lahko zgodi, da ponovno strelja na že zadeto polje.
-			Podmornica lahko v tem načinu strelja torpede – proti izbranemu
-			polju iz naključne strani izstreli torpedo, ki odkriva vsa polja
-			na svoji poti, dokler ne zadene ene izmed ladij. Bojna ladja ima
-			kot posebno lastnost malo večje izstrelke, ki zadenejo 5 polj
-			naenkrat, letalonosilka pa lahko z letalom odvrže bombo, ki odkrije
-			kar 9 polj.
+			Letalonosilka lahko z letalom odvrže bombo, ki odkrije kar 9 polj.
+			Bojna ladja ima kot posebno lastnost malo večje izstrelke, ki
+			zadenejo 5 polj hkrati. Podmornica lahko v tem načinu strelja
+			torpede – proti izbranemu polju iz naključne strani izstreli
+			torpedo, ki odkriva vsa polja na svoji poti, dokler ne zadene ene
+			izmed ladij. Križarka ima poseben strel Trostrel. Ta izmed
+			devetih polj, ki so najbližje izbranemu, naključno izbere tri, ter
+			strelja nanje. Pri tem se lahko zgodi, da ponovno strelja na že
+			zadeto polje.
 		</p>
-		<p class="has-text-light mb-6" style="text-align: justify;">
+		<div class="columns mt-5">
+			% for metoda, ladja in [("BigShot", "Letalonosilka"), ("MedShot", "Bojna ladja"), ("Torpedo", "Podmornica"), ("Cluster", "Križarka")]:
+			<div class="column">
+				<table class="rules table is-bordered">
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td
+						% if metoda == "BigShot":
+						class="zadeta"
+						% end
+						></td>
+						<td class="zadeta"></td>
+						<td
+						% if metoda == "BigShot":
+						class="zgresena"
+						% end
+						></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td
+						% if metoda != "Torpedo":
+						class="zgresena"
+						% end
+						></td>
+						<td
+						% if metoda != "Cluster":
+						class="zgresena"
+						% end
+						></td>
+						<td
+						% if metoda in ["BigShot", "MedShot"]:
+						class="zgresena"
+						% end
+						></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td
+						% if metoda == "BigShot":
+						class="zgresena"
+						% end
+						></td>
+						<td
+						% if metoda != "Cluster":
+						class="zgresena"
+						% end
+						></td>
+						<td
+						% if metoda in ["BigShot", "Cluster"]:
+						class="zadeta"
+						% end
+						></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td></td>
+						<td
+						% if metoda == "Torpedo":
+						class="zgresena"
+						% end
+						></td>
+						<td></td>
+						<td></td>
+					</tr>
+				</table>
+				<p class="has-text-light" style="text-align: center;">
+					{{ladja}}
+				</p>
+			</div>
+			% end
+		</div>
+		<p class="has-text-light mt-5" style="text-align: justify;">
 			Pri tem seveda veljajo določene omejitve. Ladja ne more uporabiti
 			svojega strela, če jo je nasprotnik že kdaj zadel. Poleg tega
 			posebnega strela ni mogoče uporabiti vsako potezo – uporabimo ga
@@ -30,7 +114,7 @@
 			ponovnim klikom na ta gumb pa lahko, če si premislimo, ponovno
 			izberemo navaden strel.
 		</p>
-		<p class="has-text-light mb-6" style="text-align: justify;">
+		<p class="has-text-light mt-5" style="text-align: justify;">
 			Komu bo uspelo prevladati v tej kaotični igri in zmagati v
 			najmanjšem številu potez?
 		</p>
