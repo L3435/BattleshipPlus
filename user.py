@@ -32,14 +32,15 @@ class User:
     @staticmethod
     def registracija(uporabnisko_ime: str, geslo: str) -> User:
         """Preveri, če je registracija uspešna."""
-        if User.iz_datoteke(uporabnisko_ime) != None:
+        stats = statistika.get_stats()
+        if stats[User.uporabnikova_statistika(uporabnisko_ime)]:
             raise ValueError("Uporabniško ime že obstaja")
         else:
             pwd = User._zasifriraj_geslo(geslo)
             uporabnik = User(uporabnisko_ime, pwd)
             uporabnik.v_datoteko()
             stats = statistika.get_stats()
-            stats[uporabnik.uporabnikova_statistika()] = {str(i) : [0, 0, 0] for i in range(4)}
+            stats[User.uporabnikova_statistika(uporabnisko_ime)] = {str(i) : [0, 0, 0] for i in range(4)}
             statistika.save_stats(stats)
             return uporabnik
 
@@ -78,9 +79,10 @@ class User:
         # Windows ne dovoli uporabe določenih imen za datoteke,
         # kar obidemo s predpono "user_"
 
-    def uporabnikova_statistika(self) -> str:
+    @staticmethod
+    def uporabnikova_statistika(username: str) -> str:
         """Vrne niz, ki določa statistiko uporabnika v slovarju."""
-        return f"stats_{self.uporabnisko_ime}"
+        return f"stats_{username}"
 
     @staticmethod
     def iz_slovarja(slovar: dict) -> User:
@@ -111,7 +113,7 @@ class User:
         igra = self.igre[id]
         stats = statistika.get_stats()
         if igra.tezavnost in [0, 1, 2, 3]:
-            stats[self.uporabnikova_statistika()]\
+            stats[User.uporabnikova_statistika(self.uporabnisko_ime)]\
 				[str(igra.tezavnost)][igra.konec() - 1] += 1
             dif = "1" if igra.tezavnost else "0"
             if igra.konec() == 1:
