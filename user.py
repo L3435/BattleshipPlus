@@ -34,7 +34,7 @@ class User:
         """Preveri, če je registracija uspešna."""
         stats = statistika.get_stats()
         if stats[User.uporabnikova_statistika(uporabnisko_ime)]:
-            raise ValueError("Uporabniško ime že obstaja")
+            raise ValueError("Uporabniško ime že obstaja!")
         else:
             pwd = User._zasifriraj_geslo(geslo)
             uporabnik = User(uporabnisko_ime, pwd)

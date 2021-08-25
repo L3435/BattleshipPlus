@@ -125,16 +125,16 @@ class Igra:
 
     def poteza(self, x: int, y: int) -> None:
         """Ustreli polje (x,y) in naredi računalniško potezo"""
+        self.AI_Poteza()
         P1 = self.igralec1
         P2 = self.igralec2
         if P1.radar[x][y] != ' ':
             raise AlreadyShot
         MAP[self.selected](P1, x, y)
-        if self.selected:
+        if self.selected and P2.ladja_z_metodo(self.selected) != None:
             P2.ladja_z_metodo(self.selected).stevec = -1
         self.selected = None
         self.poteze += 1
-        self.AI_Poteza()
         self.povecaj_stevec()
 
     def povecaj_stevec(self):
