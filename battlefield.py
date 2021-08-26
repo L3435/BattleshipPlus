@@ -488,10 +488,10 @@ class Polje:
         frekvence = [[0] * 10 for _ in range(10)]
         for ladja in self.flota.values():
             for x, y, r in postavitve[ladja]:
-                counter = [self.radar[x + r * i][y + i - r * i]
-                           for i in range(ladja.dolzina)].count('x') ** 3
+                counter = 200 ** [self.radar[x + r * i][y + i - r * i]
+                           for i in range(ladja.dolzina)].count('x')
                 for i in range(ladja.dolzina):
-                    frekvence[x + r * i][y + i - r * i] += 200 * counter + 1
+                    frekvence[x + r * i][y + i - r * i] += counter
         return frekvence
 
     def tezek_AI(self, frekvence: list[list[int]] = None) -> tuple[int, int]:
