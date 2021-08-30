@@ -40,7 +40,9 @@ class User:
             uporabnik = User(uporabnisko_ime, pwd)
             uporabnik.v_datoteko()
             stats = statistika.get_stats()
-            stats[User.uporabnikova_statistika(uporabnisko_ime)] = {str(i) : [0, 0, 0] for i in range(4)}
+            stats[User.uporabnikova_statistika(uporabnisko_ime)] = {
+                str(i) : [0, 0, 0] for i in range(4)
+            }
             statistika.save_stats(stats)
             return uporabnik
 

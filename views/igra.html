@@ -60,47 +60,47 @@
             ">
               <tr>
               <td
-              % if ship.metoda == "BigShot":
+              % if ship.metoda == "Letalonosilka":
               class="zadeta"
               % end
               ></td>
               <td class="zadeta"></td>
               <td
-              % if ship.metoda == "BigShot":
+              % if ship.metoda == "Letalonosilka":
               class="zgresena"
               % end
               ></td>
               </tr>
               <tr>
               <td
-              % if ship.metoda != "Torpedo":
+              % if ship.metoda != "Podmornica":
               class="zgresena"
               % end
               ></td>
               <td
-              % if ship.metoda != "Cluster":
+              % if ship.metoda != "Križarka":
               class="zgresena"
               % end
               ></td>
               <td
-              % if ship.metoda in ["BigShot", "MedShot"]:
+              % if ship.metoda in ["Letalonosilka", "Bojna ladja"]:
               class="zgresena"
               % end
               ></td>
               </tr>
               <tr>
               <td
-              % if ship.metoda == "BigShot":
+              % if ship.metoda == "Letalonosilka":
               class="zgresena"
               % end
               ></td>
               <td
-              % if ship.metoda != "Cluster":
+              % if ship.metoda != "Križarka":
               class="zgresena"
               % end
               ></td>
               <td
-              % if ship.metoda in ["BigShot", "Cluster"]:
+              % if ship.metoda in ["Letalonosilka", "Križarka"]:
               class="zadeta"
               % end
               ></td>

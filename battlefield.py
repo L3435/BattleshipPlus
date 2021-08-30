@@ -9,19 +9,19 @@ MEDIUM = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)]
 BIG = [(i, j) for i in range(-1, 2) for j in range(-1, 2)]
 
 OPIS_STRELOV = {
-	"BigShot" : """
+	"Letalonosilka" : """
 		Z letalonosilke vzleti letalo, ki na polje spusti bombo.
 		Ta odkrije vseh 9 celic v okolici izbrane celice.
 	""",
-	"MedShot" : """
+	"Bojna ladja" : """
 		Na bojni ladji izstreli glavna baterija.
 		Na polju odkrije 5 celic v obliki + s središčem v izbrani celici.
 	""",
-    "Torpedo" : """
+    "Podmornica" : """
         Podmornica izstreli torpedo iz naključne smeri.
         Ta odkriva polja v liniji, dokler ne zadene ladje.
     """,
-    "Cluster" : """
+    "Križarka" : """
         Križarka sproži 3 naboje hkrati.
         Ti zadenejo 3 naključno izbrana polja v okolici izbrane celice.
     """
@@ -96,10 +96,10 @@ class Polje:
             self.flota = flota
         else:
             self.flota = {
-                "A": Ladja(5, "A", "BigShot"),
-                "B": Ladja(4, "B", "MedShot"),
-                "C": Ladja(3, "C", "Torpedo"),
-                "D": Ladja(3, "D", "Cluster"),
+                "A": Ladja(5, "A", "Letalonosilka"),
+                "B": Ladja(4, "B", "Bojna ladja"),
+                "C": Ladja(3, "C", "Podmornica"),
+                "D": Ladja(3, "D", "Križarka"),
                 "E": Ladja(2, "E", None)
             }
         self.ladje = len(self.flota)

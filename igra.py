@@ -4,16 +4,16 @@ import battlefield
 
 MAP = {
     None: battlefield.Polje.strel,
-    "BigShot": battlefield.Polje.velik_strel,
-    "MedShot": battlefield.Polje.strel_plus,
-    "Cluster": battlefield.Polje.trojni_strel,
-    "Torpedo": battlefield.Polje.torpedo
+    "Letalonosilka": battlefield.Polje.velik_strel,
+    "Bojna ladja": battlefield.Polje.strel_plus,
+    "Križarka": battlefield.Polje.trojni_strel,
+    "Podmornica": battlefield.Polje.torpedo
 }
 
 AI_MAP = {
-    "BigShot": battlefield.Polje.optimalen_velik_strel,
-    "MedShot": battlefield.Polje.optimalen_plus,
-    "Torpedo": battlefield.Polje.tezek_AI
+    "Letalonosilka": battlefield.Polje.optimalen_velik_strel,
+    "Bojna ladja": battlefield.Polje.optimalen_plus,
+    "Podmornica": battlefield.Polje.tezek_AI
 }
 
 DIF_MAP = {

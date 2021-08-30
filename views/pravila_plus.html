@@ -24,7 +24,7 @@
       zadeto polje.
     </p>
     <div class="columns mt-5">
-      % for metoda, ladja in [("BigShot", "Letalonosilka"), ("MedShot", "Bojna ladja"), ("Torpedo", "Podmornica"), ("Cluster", "Križarka")]:
+      % for ladja in ["Letalonosilka", "Bojna ladja", "Podmornica", "Križarka"]:
       <div class="column">
         <table class="rules table is-bordered">
           <tr>
@@ -37,13 +37,13 @@
           <tr>
             <td></td>
             <td
-            % if metoda == "BigShot":
+            % if ladja == "Letalonosilka":
             class="zadeta"
             % end
             ></td>
             <td class="zadeta"></td>
             <td
-            % if metoda == "BigShot":
+            % if ladja == "Letalonosilka":
             class="zgresena"
             % end
             ></td>
@@ -52,17 +52,17 @@
           <tr>
             <td></td>
             <td
-            % if metoda != "Torpedo":
+            % if ladja != "Podmornica":
             class="zgresena"
             % end
             ></td>
             <td
-            % if metoda != "Cluster":
+            % if ladja != "Križarka":
             class="zgresena"
             % end
             ></td>
             <td
-            % if metoda in ["BigShot", "MedShot"]:
+            % if ladja in ["Letalonosilka", "Bojna ladja"]:
             class="zgresena"
             % end
             ></td>
@@ -71,17 +71,17 @@
           <tr>
             <td></td>
             <td
-            % if metoda == "BigShot":
+            % if ladja == "Letalonosilka":
             class="zgresena"
             % end
             ></td>
             <td
-            % if metoda != "Cluster":
+            % if ladja != "Križarka":
             class="zgresena"
             % end
             ></td>
             <td
-            % if metoda in ["BigShot", "Cluster"]:
+            % if ladja in ["Letalonosilka", "Križarka"]:
             class="zadeta"
             % end
             ></td>
@@ -91,7 +91,7 @@
             <td></td>
             <td></td>
             <td
-            % if metoda == "Torpedo":
+            % if ladja == "Podmornica":
             class="zgresena"
             % end
             ></td>
