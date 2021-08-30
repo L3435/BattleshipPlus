@@ -1,5 +1,3 @@
-from battlefield import OPIS_STRELOV
-from errors import AlreadyShot
 import bottle
 import webbrowser
 import user
@@ -15,6 +13,25 @@ MAP = {
     "Klasičen, težavnost 2": 2,
     "Klasičen, težavnost 3": 3,
     "Plus": 0
+}
+
+OPIS_STRELOV = {
+    "Letalonosilka": """
+		Z letalonosilke vzleti letalo, ki na polje spusti bombo.
+		Ta odkrije vseh 9 celic v okolici izbrane celice.
+	""",
+    "Bojna ladja": """
+		Na bojni ladji izstreli glavna baterija.
+		Na polju odkrije 5 celic v obliki + s središčem v izbrani celici.
+	""",
+    "Podmornica": """
+        Podmornica izstreli torpedo iz naključne smeri.
+        Ta odkriva polja v liniji, dokler ne zadene ladje.
+    """,
+    "Križarka": """
+        Križarka sproži 3 naboje hkrati.
+        Ti zadenejo 3 naključno izbrana polja v okolici izbrane celice.
+    """
 }
 
 
@@ -152,10 +169,7 @@ def trenutna(id: int):
     if bottle.request.query.x:
         x = int(bottle.request.query.x)
         y = int(bottle.request.query.y)
-        try:
-            igra.poteza(x, y)
-        except AlreadyShot:
-            pass
+        igra.poteza(x, y)
         if igra.konec():
             user.konec_igre(id)
             if igra.tezavnost == -1:

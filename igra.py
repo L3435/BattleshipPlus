@@ -1,5 +1,4 @@
 from __future__ import annotations
-from errors import AlreadyShot
 import battlefield
 
 MAP = {
@@ -125,11 +124,11 @@ class Igra:
 
     def poteza(self, x: int, y: int) -> None:
         """Ustreli polje (x,y) in naredi računalniško potezo"""
-        self.AI_Poteza()
         P1 = self.igralec1
         P2 = self.igralec2
         if P1.radar[x][y] != ' ':
-            raise AlreadyShot
+            return
+        self.AI_Poteza()
         MAP[self.selected](P1, x, y)
         if self.selected and P2.ladja_z_metodo(self.selected) != None:
             P2.ladja_z_metodo(self.selected).stevec = -1

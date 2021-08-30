@@ -1,31 +1,12 @@
 from __future__ import annotations
-from ast import Index
-from types import MethodType
-from errors import *
 import random
 import time
 
+class AlreadyShot(Exception): pass
+class CellTaken(Exception): pass
+
 MEDIUM = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)]
 BIG = [(i, j) for i in range(-1, 2) for j in range(-1, 2)]
-
-OPIS_STRELOV = {
-	"Letalonosilka" : """
-		Z letalonosilke vzleti letalo, ki na polje spusti bombo.
-		Ta odkrije vseh 9 celic v okolici izbrane celice.
-	""",
-	"Bojna ladja" : """
-		Na bojni ladji izstreli glavna baterija.
-		Na polju odkrije 5 celic v obliki + s središčem v izbrani celici.
-	""",
-    "Podmornica" : """
-        Podmornica izstreli torpedo iz naključne smeri.
-        Ta odkriva polja v liniji, dokler ne zadene ladje.
-    """,
-    "Križarka" : """
-        Križarka sproži 3 naboje hkrati.
-        Ti zadenejo 3 naključno izbrana polja v okolici izbrane celice.
-    """
-}
 
 class Ladja:
     """Razred, ki vsebuje vse podatke o ladjah.
