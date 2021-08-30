@@ -6,83 +6,112 @@
       margin-right: auto;
     }
 
-	.control {
+  .control {
       margin-left: auto;
       margin-right: auto;
-	}
+  }
 </style>
 
 <section class="section has-text-centered">
-	<h1 class="title has-text-light">Pozdravljen, {{user.uporabnisko_ime}}!</h1>
-	% if len(user.igre) >= 5:
-	<div class="block has-text-danger">
-		<i class="fas fa-exclamation-triangle"></i> Dosegli ste največje možno število iger. Pred začetkom naslednje zaključite eno izmed že začetih.
-	</div>
-	% end
+  <h1 class="title has-text-light">
+    Pozdravljen, {{user.uporabnisko_ime}}!
+  </h1>
+  % if len(user.igre) >= 5:
+  <div class="block has-text-danger">
+    <i class="fas fa-exclamation-triangle"></i>
+    Dosegli ste največje možno število iger.
+    Pred začetkom naslednje zaključite eno izmed že začetih.
+  </div>
+  % end
 </section>
 <section class="section">
-	<div class="columns">
-		<div class="column is-three-fifths has-text-centered">
-			<h2 class="subtitle has-text-light"><b>Osebna statistika:</b></h2>
-			<table class="table has-background-black-ter is-centered">
-				<thead>
-					<tr>
-						<th class="has-text-light" style="text-align:center">Način igre</th>
-						<th class="has-text-light">Težavnost</th>
-						<th class="has-text-light">Zmage</th>
-						<th class="has-text-light">Neodločeni izidi</th>
-						<th class="has-text-light">Porazi</th>
-						<th class="has-text-light" style="text-align:center">Delež zmag</th>
-					</tr>
-				</thead>
-				<tbody>
-					% for i in range(1, 4):
-					<tr>
-						<td class="has-text-light">Klasičen</td>
-						<td class="has-text-light" style="text-align:center">{{i}}</td>
-						<td class="has-text-light" style="text-align:center">{{statistika[user.uporabnikova_statistika(user.uporabnisko_ime)][str(i)][0]}}</td>
-						<td class="has-text-light" style="text-align:center">{{statistika[user.uporabnikova_statistika(user.uporabnisko_ime)][str(i)][1]}}</td>
-						<td class="has-text-light" style="text-align:center">{{statistika[user.uporabnikova_statistika(user.uporabnisko_ime)][str(i)][2]}}</td>
-						<td class="has-text-light" style="text-align:right">{{str(round(100 * statistika[user.uporabnikova_statistika(user.uporabnisko_ime)][str(i)][0] / sum(statistika[user.uporabnikova_statistika(user.uporabnisko_ime)][str(i)][p] for p in range(3)), 2)) + " %" if sum(statistika[user.uporabnikova_statistika(user.uporabnisko_ime)][str(i)][p] for p in range(3)) else "NaN"}}</td>
-					</tr>
-					% end
-					<tr>
-						<td class="has-text-light">Plus</td>
-						<td class="has-text-light" style="text-align:center">/</td>
-						<td class="has-text-light" style="text-align:center">{{statistika[user.uporabnikova_statistika(user.uporabnisko_ime)]["0"][0]}}</td>
-						<td class="has-text-light" style="text-align:center">{{statistika[user.uporabnikova_statistika(user.uporabnisko_ime)]["0"][1]}}</td>
-						<td class="has-text-light" style="text-align:center">{{statistika[user.uporabnikova_statistika(user.uporabnisko_ime)]["0"][2]}}</td>
-						<td class="has-text-light" style="text-align:right">{{str(round(100 * statistika[user.uporabnikova_statistika(user.uporabnisko_ime)]["0"][0] / sum(statistika[user.uporabnikova_statistika(user.uporabnisko_ime)]["0"][p] for p in range(3)), 2)) + " %" if sum(statistika[user.uporabnikova_statistika(user.uporabnisko_ime)]["0"][p] for p in range(3)) else "NaN"}}</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-		<div class="column">
-		% if user.igre:
-			<h2 class="subtitle has-text-light has-text-centered"><b>Odprte igre:</b></h2>
-			% for i, igra in enumerate(user.igre):
-			% dif = igra.tezavnost
-			<div class="control" style="width: 60%;">
-				<div style="float:left">
-				<p class=" has-text-light">
-					Način: {{"plus" if dif == 0 else "klasičen"}}
-				</p>
-				<p class=" has-text-light">
-					Težavnost: {{"?" if dif == -1 else (dif if dif else "/")}}
-				</p>
-				</div>
-				<div style="float:right; display: flex; align-items: center;">
-				<a class="button is-link" href="/igra/{{i}}">Nadaljuj</a>
-				</div>
-			</div>
-			% end
-			% else:
-				<h2 class="subtitle has-text-light has-text-centered"><b>Nimate odprtih iger!</b></h2>
-				<div class="buttons has-addons is-centered">
-					<a class="button is-link" href="/nastavitve">Nova igra</a>
-				</div>
-			</div>
-			% end
-		</div>
-	</div>
+  <div class="columns">
+    <div class="column is-three-fifths has-text-centered">
+      <h2 class="subtitle has-text-light"><b>Osebna statistika:</b></h2>
+      <table class="table has-background-black-ter is-centered">
+        <thead>
+          <tr>
+            <th class="has-text-light" style="text-align:center">
+              Način igre
+            </th>
+            <th class="has-text-light">
+              Težavnost
+            </th>
+            <th class="has-text-light">
+              Zmage
+            </th>
+            <th class="has-text-light">
+              Neodločeni izidi
+            </th>
+            <th class="has-text-light">
+              Porazi
+            </th>
+            <th class="has-text-light" style="text-align:center">
+              Delež zmag
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          % for i in [1, 2, 3, 0]:
+          % stat = statistika[user.uporabnikova_statistika(user.uporabnisko_ime)][str(i)]
+          <tr>
+            <td class="has-text-light">
+              % if i:
+              Klasičen
+              % else:
+              Plus
+              % end
+          </td>
+            <td class="has-text-light" style="text-align:center">
+              {{i if i else "/"}}</td>
+            <td class="has-text-light" style="text-align:center">
+              {{stat[0]}}</td>
+            <td class="has-text-light" style="text-align:center">
+              {{stat[1]}}</td>
+            <td class="has-text-light" style="text-align:center">
+              {{stat[2]}}</td>
+            <td class="has-text-light" style="text-align:right">
+              % if sum(stat[p] for p in range(3)):
+              {{str(round(100 * stat[0] / sum(stat[p] for p in range(3)), 2))}} %
+              % else:
+              NaN
+              % end
+            </td>
+          </tr>
+          % end
+        </tbody>
+      </table>
+    </div>
+    <div class="column">
+    % if user.igre:
+      <h2 class="subtitle has-text-light has-text-centered">
+        <b>Odprte igre:</b>
+      </h2>
+      % for i, igra in enumerate(user.igre):
+      % dif = igra.tezavnost
+      <div class="control" style="width: 60%;">
+        <div style="float:left">
+        <p class=" has-text-light">
+          Način: {{"plus" if dif == 0 else "klasičen"}}
+        </p>
+        <p class=" has-text-light">
+          Težavnost: {{"?" if dif == -1 else (dif if dif else "/")}}
+        </p>
+        </div>
+        <div style="float:right; display: flex; align-items: center;">
+        <a class="button is-link" href="/igra/{{i}}">Nadaljuj</a>
+        </div>
+      </div>
+      % end
+      % else:
+        <h2 class="subtitle has-text-light has-text-centered">
+          <b>Nimate odprtih iger!</b>
+        </h2>
+        <div class="buttons has-addons is-centered">
+          <a class="button is-link" href="/nastavitve">Nova igra</a>
+        </div>
+      </div>
+      % end
+    </div>
+  </div>
 </section>

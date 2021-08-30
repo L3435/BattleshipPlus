@@ -1,55 +1,66 @@
 % rebase("menu.html")
 
 <section class="section">
-	<div class="container" style="width: 350px; max-width: 90%;">
-		<form method="POST">
-		<h1 class="title has-text-light has-text-centered">Prijava</h1>
-		<div class="control">
-		    <div class="field">
-				<div class="control has-icons-left has-icons-right">
-					<input class="input" type="text" placeholder="Uporabniško ime" name="username" autofocus
-					  % if defined('uname'):
-							value="{{ uname }}"
-					  % end
-					  >
-				  <span class="icon is-small is-left">
-					<i class="fas fa-user"></i>
-				  </span>
-				  % if defined('napaka') and (napaka == "Vnesi uporabniško ime!" or napaka == "Uporabniško ime ne obstaja!"):
-				  <span class="icon is-small is-right has-text-danger">
-					<i class="fas fa-exclamation-triangle"></i>
-				  </span>
-				  % end
-				</div>
-			  </div>
-			<div class="field">
-				<div class="control has-icons-left has-icons-right">
-				  <input class="input" type="password" placeholder="Geslo" name="geslo">
-				  <span class="icon is-left">
-					<i class="fas fa-lock"></i>
-				  </span>
-				  % if defined('napaka') and (napaka == "Vnesi geslo!" or napaka == "Napačno geslo!"):
-				  <span class="icon is-small is-right has-text-danger">
-					<i class="fas fa-exclamation-triangle"></i>
-				  </span>
-				  % end
-				</div>
-				% if defined('napaka'):
-				<p class="help is-danger">{{ napaka }}</p>
-				% end
-			</div>
-			<div class="field mb-6">
-				<div class="buttons has-addons is-centered">
-					<button class="button is-link">Prijava</button>
-				</div>
-			</div>
-		</div>
-		</form>
-		<div class="field">
-			<p class="label has-text-light has-text-centered">Še nimate uporabniškega računa?</p>
-			<div class="buttons has-addons is-centered">
-				<a class="button is-link" href="/registracija">Registracija</a>
-			</div>
-		</div>
-	</div>
+  <div class="container" style="width: 350px; max-width: 90%;">
+    <form method="POST">
+      <h1 class="title has-text-light has-text-centered">Prijava</h1>
+      <div class="control">
+        <div class="field">
+          <div class="control has-icons-left has-icons-right">
+            <input class="input"
+                   type="text"
+                   placeholder="Uporabniško ime"
+                   name="username"
+                   autofocus
+            % if defined('uname'):
+            value="{{ uname }}"
+            % end
+            >
+            <span class="icon is-small is-left">
+              <i class="fas fa-user"></i>
+            </span>
+            % if defined('napaka') and "ime" in napaka:
+            <span class="icon is-small is-right has-text-danger">
+              <i class="fas fa-exclamation-triangle"></i>
+            </span>
+            % end
+          </div>
+        </div>
+        <div class="field">
+          <div class="control has-icons-left has-icons-right">
+            <input class="input"
+                   type="password"
+                   placeholder="Geslo"
+                   name="geslo">
+            <span class="icon is-left">
+              <i class="fas fa-lock"></i>
+            </span>
+            % if defined('napaka') and "geslo" in napaka:
+            <span class="icon is-small is-right has-text-danger">
+              <i class="fas fa-exclamation-triangle"></i>
+            </span>
+            % end
+          </div>
+          % if defined('napaka'):
+          <p class="help is-danger">{{ napaka }}</p>
+          % end
+        </div>
+        <div class="field mb-6">
+          <div class="buttons has-addons is-centered">
+            <button class="button is-link">Prijava</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="field">
+      <p class="label has-text-light has-text-centered">
+        Še nimate uporabniškega računa?
+      </p>
+      <div class="buttons has-addons is-centered">
+        <a class="button is-link" href="/registracija">
+          Registracija
+        </a>
+      </div>
+    </div>
+  </div>
 </section>

@@ -1,108 +1,112 @@
 <script>
-	const toggleBurger = () => {
-		let burgerIcon = document.getElementById('burger');
-		let dropMenu = document.getElementById('navbar');
-		burgerIcon.classList.toggle('is-active');
-		dropMenu.classList.toggle('is-active');
-	};
+  const toggleBurger = () => {
+    let burgerIcon = document.getElementById('burger');
+    let dropMenu = document.getElementById('navbar');
+    burgerIcon.classList.toggle('is-active');
+    dropMenu.classList.toggle('is-active');
+  };
 </script>
 
 <!DOCTYPE html>
 <html class="has-background-black-ter">
 
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Battleship Plus</title>
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-	<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Battleship Plus</title>
+  <link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js">
+  </script>
 </head>
 
-<nav class="navbar is-dark has-background-black-bis is-active" role="navigation" aria-label="main navigation">
-	<div class="navbar-brand">
-		<a class="navbar-item" href="/">
-			<b>Battleship Plus</b>
-		</a>
+<nav class="navbar is-dark has-background-black-bis is-active"
+   role="navigation"
+   aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="/">
+      <b>Battleship Plus</b>
+    </a>
 
-		<a class="navbar-burger" id="burger" onclick="toggleBurger()">
-			<span aria-hidden="true"></span>
-			<span aria-hidden="true"></span>
-			<span aria-hidden="true"></span>
-		</a>
-	</div>
+    <a class="navbar-burger" id="burger" onclick="toggleBurger()">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
 
-	<div class="navbar-menu" id="navbar">
-		<div class="navbar-start">
-			<a class="navbar-item" href="/">
-				Domov
-			</a>
+  <div class="navbar-menu" id="navbar">
+    <div class="navbar-start">
+      <a class="navbar-item" href="/">
+        Domov
+      </a>
 
-			<div class="navbar-item has-dropdown is-hoverable">
-				<a class="navbar-link">
-					Pravila igre
-				</a>
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          Pravila igre
+        </a>
 
-				<div class="navbar-dropdown">
-					<a class="navbar-item" href="/pravila">
-						Klasični način
-					</a>
-					<a class="navbar-item" href="/pravila_plus">
-						Način plus
-					</a>
-				</div>
-			</div>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="/pravila">
+            Klasični način
+          </a>
+          <a class="navbar-item" href="/pravila_plus">
+            Način plus
+          </a>
+        </div>
+      </div>
 
-			<div class="navbar-item has-dropdown is-hoverable">
-				<a class="navbar-link">
-					Lestvice
-				</a>
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          Lestvice
+        </a>
 
-				<div class="navbar-dropdown">
-					<a class="navbar-item" href="/lestvice">
-						Klasični način
-					</a>
-					<a class="navbar-item" href="/lestvice_plus">
-						Način plus
-					</a>
-				</div>
-			</div>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="/lestvice">
+            Klasični način
+          </a>
+          <a class="navbar-item" href="/lestvice_plus">
+            Način plus
+          </a>
+        </div>
+      </div>
 
-			<a class="navbar-item" href="/about">
-				O projektu
-			</a>
-		</div>
+      <a class="navbar-item" href="/about">
+        O projektu
+      </a>
+    </div>
 
-		<div class="navbar-end">
-			<div class="navbar-item">
-				<a href="https://github.com/L3435/BattleshipPlus">
-					<img src="../img/GitHub-Mark-Light-32px.png">
-				</a>
-			</div>
-			<div class="navbar-item">
-				<div class="buttons">
-					% if user == None:
-					<a class="button is-link" href="/registracija">
-						<strong>Registracija</strong>
-					</a>
-					<a class="button" href="/prijava">
-						Prijava
-					</a>
-					% else:
-					<a class="button" href="/profil">
-						<strong>Moj profil</strong>
-					</a>
-					<a class="button is-danger" href="/odjava">
-						<strong>Odjava</strong>
-					</a>
-					% end
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <a href="https://github.com/L3435/BattleshipPlus">
+          <img src="../img/GitHub-Mark-Light-32px.png">
+        </a>
+      </div>
+      <div class="navbar-item">
+        <div class="buttons">
+          % if user == None:
+          <a class="button is-link" href="/registracija">
+            <strong>Registracija</strong>
+          </a>
+          <a class="button" href="/prijava">
+            Prijava
+          </a>
+          % else:
+          <a class="button" href="/profil">
+            <strong>Moj profil</strong>
+          </a>
+          <a class="button is-danger" href="/odjava">
+            <strong>Odjava</strong>
+          </a>
+          % end
+        </div>
+      </div>
+    </div>
+  </div>
 </nav>
 
 <body>
-	{{!base}}
+  {{!base}}
 </body>
 
 </html>
