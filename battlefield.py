@@ -435,8 +435,10 @@ class Polje:
                     try:
                         x0 = x - r * i
                         y0 = y - i + r * i
-                        if all(self.radar[x0 + r * p][y0 + p - r * p] == 'x'
-                               for p in range(ladja.dolzina)):
+                        if (x + r * ladja.dolzina > 10 or
+                            y + (1 - r) * ladja.dolzina > 10 or
+                            all(self.radar[x + r * p][y + p - r * p] == 'x'
+                            for p in range(ladja.dolzina))):
                             raise CellTaken
                         simulacija.postavi_ladjo(ladja, x0, y0, r)
                         self.rekurzivno_postavljanje(
