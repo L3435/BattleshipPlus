@@ -394,8 +394,9 @@ class Polje:
         for x, y in Polje():
             for r in range(2):
                 try:
-                    if all(self.radar[x + r * p][y + p - r * p] == 'x'
-                           for p in range(seznam[indeks].dolzina)):
+                    if (x + r * p > 9 or y + p - r * p > 9 or
+                        all(self.radar[x + r * p][y + p - r * p] == 'x'
+                        for p in range(seznam[indeks].dolzina))):
                         raise CellTaken
                     simulacija.postavi_ladjo(seznam[indeks], x, y, r)
                     self.rekurzivno_postavljanje(
