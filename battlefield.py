@@ -394,7 +394,8 @@ class Polje:
         for x, y in Polje():
             for r in range(2):
                 try:
-                    if (x + r * p > 9 or y + p - r * p > 9 or
+                    if (x + r * seznam[indeks].dolzina > 10 or
+                        y + (1 - r) * seznam[indeks].dolzina > 10 or
                         all(self.radar[x + r * p][y + p - r * p] == 'x'
                         for p in range(seznam[indeks].dolzina))):
                         raise CellTaken
