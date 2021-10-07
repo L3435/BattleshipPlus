@@ -95,7 +95,7 @@ class Igra:
                     MAP[metoda](P2, *AI_MAP[metoda](P2))
                     P1.ladja_z_metodo(metoda).stevec = -1
                     return
-            if P1.metoda_dostopna("Cluster"):
+            if P1.metoda_dostopna("Križarka"):
                 self.streljaj_trojno()
                 return
         if self.tezavnost in DIF_MAP:
@@ -116,11 +116,13 @@ class Igra:
         if 3 * frekvence[x2][y2] > sum(
                 frekvence[x1 + i][y1 + j]
                 for i in range(-1, 2)
-                for j in range(-1, 2)):
+                for j in range(-1, 2)
+                if 0 <= x1 + i < 10 and 0 <= y1 + j < 10
+                ):
             P2.strel(x2, y2)
         else:
             P2.trojni_strel(x1, y1)
-            P1.ladja_z_metodo("Cluster").stevec = -1
+            P1.ladja_z_metodo("Križarka").stevec = -1
 
     def poteza(self, x: int, y: int) -> None:
         """Ustreli polje (x,y) in naredi računalniško potezo"""
