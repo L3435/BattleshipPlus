@@ -104,6 +104,7 @@ def registracija_post():
     username = bottle.request.forms.getunicode("username")
     geslo1 = bottle.request.forms.getunicode("geslo1")
     geslo2 = bottle.request.forms.getunicode("geslo2")
+    print(username, geslo1)
     if not username:
         return bottle.template(
             "registracija.html",
@@ -255,4 +256,4 @@ def style(stylesheet):
 
 
 if __name__ == '__main__':
-    bottle.run(host="0.0.0.0", port="3435")
+    bottle.run(host="0.0.0.0", port="3435", server="paste")
