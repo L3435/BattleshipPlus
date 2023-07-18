@@ -80,7 +80,7 @@ class Polje:
                 "A": Ladja(5, "A", "Letalonosilka"),
                 "B": Ladja(4, "B", "Bojna ladja"),
                 "C": Ladja(3, "C", "Podmornica"),
-                "D": Ladja(3, "D", "Križarka"),
+                "D": Ladja(3, "D", "Krizarka"),
                 "E": Ladja(2, "E", None)
             }
         self.ladje = len(self.flota)
